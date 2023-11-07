@@ -10,9 +10,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://naver.jfrog.io/artifactory/maven/")
+
     }
 }
 
+
 rootProject.name = "YoursKeeper"
 include(":app")
- 
