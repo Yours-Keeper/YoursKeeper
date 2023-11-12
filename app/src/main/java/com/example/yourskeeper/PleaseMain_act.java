@@ -9,9 +9,13 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
@@ -146,7 +150,7 @@ public class PleaseMain_act extends AppCompatActivity
     }
 
     private void showCustomModal(String title, String content, float distance) {
-        Dialog dialog = new Dialog(this);
+        Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
 
         TextView textModalContent = dialog.findViewById(R.id.modalTitle);
@@ -155,6 +159,17 @@ public class PleaseMain_act extends AppCompatActivity
 
         textModalContent.setText(content);
         modalDistance.setText(String.format("거리: %.0f 미터", distance));
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.gravity = Gravity.BOTTOM; // 아래로 이동
+
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+            window.setAttributes(layoutParams);
+        }
 
 
         dialog.show();

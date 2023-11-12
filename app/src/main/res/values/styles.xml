@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- styles.xml -->
+<resources>
+
+    <style name="RoundedCornersDialog" parent="Theme.AppCompat.Dialog">
+
+        <!-- 다른 속성들도 유지한 채로 여기에 아래의 속성을 추가 -->
+
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.7</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">false</item>
+
+        <item name="android:background">@android:color/transparent</item>
+
+
+
+        <item name="android:windowBackground">@drawable/rounded_dialog_bg</item> <!-- 새로운 배경 drawable 지정 -->
+    </style>
+
+</resources>
