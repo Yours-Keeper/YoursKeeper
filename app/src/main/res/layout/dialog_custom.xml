@@ -7,15 +7,29 @@
 
     <!-- 모달 창에 표시할 내용 추가 -->
     <TextView
-        android:id="@+id/textModalContent"
+        android:id="@+id/modalTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="내용을 입력하세요." />
+        android:text="도라에몽" />
+
+    <TextView
+        android:id="@+id/modalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="16:00 ~ 18:30" />
+
+    <TextView
+        android:id="@+id/modalScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="46점" />
+
+    <TextView
+        android:id="@+id/modalDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="거리: 300m" /> <!-- 거리 정보를 여기에 표시 -->
 
     <!-- 모달 창 닫기 버튼 -->
-    <Button
-        android:id="@+id/btnCloseModal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="닫기" />
+
 </LinearLayout>

@@ -56,7 +56,7 @@ public class PleaseMain_act extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_please_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setContentInsetsAbsolute(0,0);
+        toolbar.setContentInsetsAbsolute(0, 0);
         setSupportActionBar(toolbar);
         //지도 객체 생성하기
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -64,7 +64,6 @@ public class PleaseMain_act extends AppCompatActivity
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance();
             fragmentManager.beginTransaction().add(R.id.map_fragment, mapFragment).commit();
-
         }
 
         //getMapAsync 호출해 비동기로 onMapReady 콜백 메서드 호출
@@ -73,15 +72,10 @@ public class PleaseMain_act extends AppCompatActivity
 
         //위치를 반환하는 구현체인 FusedLocationSource 생성
         locationSource = new FusedLocationSource(this, PERMISSION_REQUEST_CODE);
-
-
     }
-
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
-
-
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
         mNaverMap = naverMap;
         mNaverMap.setLocationSource(locationSource);
@@ -89,6 +83,15 @@ public class PleaseMain_act extends AppCompatActivity
         CircleOverlay outcircle = new CircleOverlay();
         // 권한 확인, 결과는 onRequestPermissionResult 콜백 메서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+
+        Marker marker1 = new Marker();
+        marker1.setPosition(new LatLng(37.4974358, 126.9530382));
+        marker1.setMap(naverMap);
+
+        Marker marker2 = new Marker();
+        marker2.setPosition(new LatLng(37.4985318, 126.9580722));
+        marker2.setMap(naverMap);
+
         naverMap.addOnLocationChangeListener(new NaverMap.OnLocationChangeListener() {
             @Override
             public void onLocationChange(@NonNull Location location) {
@@ -100,6 +103,7 @@ public class PleaseMain_act extends AppCompatActivity
                 incircle.setRadius(100);
                 incircle.setMap(mNaverMap);
                 incircle.setColor(Color.argb(0, 0, 0, 0));
+
                 outcircle.setOutlineWidth(7);
                 outcircle.setOutlineColor(Color.YELLOW);
                 outcircle.setCenter(new LatLng(lat, lon));
@@ -116,62 +120,44 @@ public class PleaseMain_act extends AppCompatActivity
                 mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
                 Toast.makeText(getApplicationContext(),
                         lat + ", " + lon, Toast.LENGTH_SHORT).show();
+
+                float distanceToMarker1 = location.distanceTo(new Location("Marker1") {{
+                    setLatitude(marker1.getPosition().latitude);
+                    setLongitude(marker1.getPosition().longitude);
+                }});
+
+                // 현재 위치에서 마커2까지의 거리 계산
+                float distanceToMarker2 = location.distanceTo(new Location("Marker2") {{
+                    setLatitude(marker2.getPosition().latitude);
+                    setLongitude(marker2.getPosition().longitude);
+                }});
+
+                marker1.setOnClickListener(overlay -> {
+                    showCustomModal("마커 정보", "원하는 내용을 입력하세요.", distanceToMarker1);
+                    return true;
+                });
+
+                marker2.setOnClickListener(overlay -> {
+                    showCustomModal("마커 정보", "원하는 내용을 입력하세요.", distanceToMarker2);
+                    return true;
+                });
             }
         });
-
-
-        Marker marker1 = new Marker();
-        marker1.setPosition(new LatLng(37.4974358, 126.9530382));
-        marker1.setMap(naverMap);
-        Marker marker2 = new Marker();
-        marker2.setPosition(new LatLng(37.4985318, 126.9580722));
-        marker2.setMap(naverMap);
-        InfoWindow infoWindow = new InfoWindow();
-
-
-        marker1.setOnClickListener(overlay -> {
-            // 마커 클릭 시 InfoWindow를 열고 닫음
-            if (infoWindow.getMarker() == null) {
-
-                showCustomModal("마커 정보", "원하는 내용을 입력하세요.");
-            }
-            return true;
-        });
-
-        marker2.setOnClickListener(overlay -> {
-            // 마커 클릭 시 InfoWindow를 열고 닫음
-            if (infoWindow.getMarker() == null) {
-
-                showCustomModal("마커 정보", "원하는 내용을 입력하세요.");
-            }
-            return true;
-        });
-
-
     }
-    private void showCustomModal(String title, String content) {
-        // 커스텀 다이얼로그 레이아웃을 불러옴
+
+    private void showCustomModal(String title, String content, float distance) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_custom);
 
-        // 다이얼로그 내부의 뷰들을 참조
-        TextView textModalContent = dialog.findViewById(R.id.textModalContent);
-        Button btnCloseModal = dialog.findViewById(R.id.btnCloseModal);
+        TextView textModalContent = dialog.findViewById(R.id.modalTitle);
+        TextView modalDistance = dialog.findViewById(R.id.modalDistance);
 
-        // 뷰에 데이터 설정
+
         textModalContent.setText(content);
+        modalDistance.setText(String.format("거리: %.0f 미터", distance));
 
-        // 닫기 버튼 클릭 이벤트 처리
-        btnCloseModal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss(); // 다이얼로그 닫기
-            }
-        });
 
-        // 다이얼로그 표시
         dialog.show();
     }
-
 
 }
