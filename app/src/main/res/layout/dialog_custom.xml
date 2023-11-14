@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+
+    android:background="@drawable/rounded_dialog_bg"
+    android:padding="30dp">
+
+
+    <!-- 모달 창에 표시할 내용 추가 -->
+    <TextView
+        android:id="@+id/modalTitle"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="도라에몽" />
+
+    <TextView
+        android:id="@+id/modalTime"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="16:00 ~ 18:30" />
+
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/modalScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="46점" />
+
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/modalDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="거리: 300m" />
+
+    <!-- 모달 창 닫기 버튼 -->
+
+    <!-- 여기에 추가된 TextView로 거리 정보를 표시 -->
+
+
+</LinearLayout>
