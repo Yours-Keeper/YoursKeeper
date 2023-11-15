@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "256423130166",
+    "project_id": "yourskeeper",
+    "storage_bucket": "yourskeeper.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256423130166:android:da54a9874630ab521cd497",
+        "android_client_info": {
+          "package_name": "com.example.yourskeeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256423130166-r0e1l68br0r919pb708s2rvoa4q1j5p6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.yourskeeper",
+            "certificate_hash": "3fa78ea159c5b57d771c1fca393a18ae3aa30d0b"
+          }
+        },
+        {
+          "client_id": "256423130166-prb5sptvipc0t830iavqqjjd2qs02gqk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXo-SvNBMTv_NaWBhf7vTfc37ULFM2gsQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256423130166-prb5sptvipc0t830iavqqjjd2qs02gqk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

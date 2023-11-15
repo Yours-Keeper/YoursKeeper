@@ -20,6 +20,21 @@
             android:name=".ChatingList_act"
             android:exported="true" />
         <activity
+            android:name=".MainPageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NicknameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".PleaseMain_act"
             android:exported="true">
             <intent-filter>
@@ -33,15 +48,7 @@
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="dwa3gjfpjc" />
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>
