@@ -23,6 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="내 근처의 Keeper"
+        android:textSize="20dp"
+        android:textStyle="bold"
         android:textColor="@color/black" />
 
     <ImageView

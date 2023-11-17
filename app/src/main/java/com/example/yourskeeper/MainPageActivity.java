@@ -7,8 +7,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class MainPageActivity extends AppCompatActivity {
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+public class MainPageActivity extends AppCompatActivity {
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,12 +20,16 @@ public class MainPageActivity extends AppCompatActivity {
         pleaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateUI();
+                FirebaseUser user = mAuth.getCurrentUser();
+                updateUI(user);
             }
         });
     }
-    private void updateUI() {
+    private void updateUI(FirebaseUser user) {
+        String userId = user.getUid(); // 사용자 ID 가져오기
+
         Intent intent = new Intent(this, PleaseMain_act.class);
+        intent.putExtra("USER_ID", userId);
         startActivity(intent);
     }
 
