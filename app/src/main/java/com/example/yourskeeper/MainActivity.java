@@ -150,8 +150,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            Intent intent = new Intent(this, NicknameActivity.class);
+            String userId = user.getUid(); // 사용자 ID 가져오기
 
+            Intent intent = new Intent(this, NicknameActivity.class);
+            intent.putExtra("USER_ID", userId);
             startActivity(intent);
         }
     }
