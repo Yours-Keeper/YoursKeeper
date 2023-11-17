@@ -20,6 +20,7 @@
         android:gravity="center">
 
         <Button
+            android:id="@+id/please_Btn"
             android:layout_width="200dp"
             android:layout_height="80dp"
             android:text="부탁해요"
