@@ -48,7 +48,7 @@ public class PleaseMain_act extends AppCompatActivity
     private FusedLocationSource locationSource;
     private NaverMap mNaverMap;
     private double lat, lon;
-
+    private double userLat, userLon;
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
     private static final String[] PERMISSIONS = {
@@ -141,8 +141,8 @@ public class PleaseMain_act extends AppCompatActivity
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     if (document != null && document.exists()) {
-                                        double userLat = document.getDouble("lat");
-                                        double userLon = document.getDouble("lon");
+                                        userLat = document.getDouble("lat");
+                                        userLon = document.getDouble("lon");
                                         marker1.setPosition(new LatLng(userLat, userLon));
                                         marker1.setMap(naverMap);
                                     } else {
@@ -171,8 +171,8 @@ public class PleaseMain_act extends AppCompatActivity
                         lat + ", " + lon, Toast.LENGTH_SHORT).show();
 
                 float distanceToMarker1 = location.distanceTo(new Location("Marker1") {{
-                    setLatitude(marker1.getPosition().latitude);
-                    setLongitude(marker1.getPosition().longitude);
+                    setLatitude(userLat);
+                    setLongitude(userLon);
                 }});
                 // 현재 위치에서 마커2까지의 거리 계산
                 marker1.setOnClickListener(overlay -> {
