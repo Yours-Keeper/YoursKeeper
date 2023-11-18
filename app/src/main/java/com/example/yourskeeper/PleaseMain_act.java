@@ -40,6 +40,42 @@ import com.naver.maps.map.util.FusedLocationSource;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentManager;
+
+import android.Manifest;
+import android.app.Dialog;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Button;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.LocationTrackingMode;
+import com.naver.maps.map.MapFragment;
+import com.naver.maps.map.NaverMap;
+import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.overlay.CircleOverlay;
+import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.util.FusedLocationSource;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 public class PleaseMain_act extends AppCompatActivity
         implements OnMapReadyCallback {
     private FirebaseAuth mAuth;  // Firebase 인증 객체
@@ -48,7 +84,6 @@ public class PleaseMain_act extends AppCompatActivity
     private FusedLocationSource locationSource;
     private NaverMap mNaverMap;
     private double lat, lon;
-    private double userLat, userLon;
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
     private static final String[] PERMISSIONS = {
@@ -71,7 +106,7 @@ public class PleaseMain_act extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_please_main);
-// Firebase 인증 객체 초기화
+        // Firebase 인증 객체 초기화
         mAuth = FirebaseAuth.getInstance();
 
         // Firebase Firestore 객체 초기화
@@ -85,7 +120,7 @@ public class PleaseMain_act extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setContentInsetsAbsolute(0, 0);
         setSupportActionBar(toolbar);
-        //지도 객체 생성하기
+        // 지도 객체 생성하기
         FragmentManager fragmentManager = getSupportFragmentManager();
         MapFragment mapFragment = (MapFragment) fragmentManager.findFragmentById(R.id.map_fragment);
         if (mapFragment == null) {
@@ -93,11 +128,11 @@ public class PleaseMain_act extends AppCompatActivity
             fragmentManager.beginTransaction().add(R.id.map_fragment, mapFragment).commit();
         }
 
-        //getMapAsync 호출해 비동기로 onMapReady 콜백 메서드 호출
-        //onMapReady에서 NaverMap 객체를 받음.
+        // getMapAsync 호출해 비동기로 onMapReady 콜백 메서드 호출
+        // onMapReady에서 NaverMap 객체를 받음.
         mapFragment.getMapAsync(this);
 
-        //위치를 반환하는 구현체인 FusedLocationSource 생성
+        // 위치를 반환하는 구현체인 FusedLocationSource 생성
         locationSource = new FusedLocationSource(this, PERMISSION_REQUEST_CODE);
     }
 
@@ -113,12 +148,9 @@ public class PleaseMain_act extends AppCompatActivity
         // 권한 확인, 결과는 onRequestPermissionResult 콜백 메서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
 
-
-
         naverMap.addOnLocationChangeListener(new NaverMap.OnLocationChangeListener() {
             @Override
             public void onLocationChange(@NonNull Location location) {
-
                 lat = location.getLatitude();
                 lon = location.getLongitude();
                 incircle.setOutlineWidth(7);
@@ -134,31 +166,44 @@ public class PleaseMain_act extends AppCompatActivity
                 outcircle.setRadius(200);
                 outcircle.setMap(mNaverMap);
                 outcircle.setColor(Color.argb(0, 0, 0, 0));
-                Marker marker1 = new Marker();
+
                 if (userId != null) {
-                    db.collection("storeContent").document(userId).get()
+                    db.collection("storeContent").get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document != null && document.exists()) {
-                                        userLat = document.getDouble("lat");
-                                        userLon = document.getDouble("lon");
-                                        marker1.setPosition(new LatLng(userLat, userLon));
-                                        marker1.setMap(naverMap);
-                                    } else {
-                                        // Firestore 문서가 없거나 null인 경우
-                                        Log.d(TAG, "문서 존재하지 않음");
+                                    for (DocumentSnapshot document : task.getResult()) {
+                                        if (document.exists()) {
+                                            double userLat = document.getDouble("lat");
+                                            double userLon = document.getDouble("lon");
+
+                                            // Add a marker for each document in the "storeContent" collection
+                                            Marker marker = new Marker();
+                                            marker.setPosition(new LatLng(userLat, userLon));
+                                            marker.setMap(naverMap);
+
+                                            // Handle click event
+                                            marker.setOnClickListener(overlay -> {
+                                                float distanceToMarker = location.distanceTo(new Location("Marker") {{
+                                                    setLatitude(userLat);
+                                                    setLongitude(userLon);
+                                                }});
+                                                showCustomModal("Marker information", "", distanceToMarker, userId);
+                                                return true;
+                                            });
+                                        } else {
+                                            // If the Firestore document does not exist
+                                            Log.d(TAG, "Document does not exist");
+                                        }
                                     }
                                 } else {
-                                    // 작업이 예외와 함께 실패한 경우
+                                    // If the operation fails with an exception
                                     Exception exception = task.getException();
                                     if (exception != null) {
-                                        Log.e(TAG, "문서 가져오기 오류", exception);
+                                        Log.e(TAG, "Error retrieving documents", exception);
                                     }
                                 }
                             });
                 }
-
 
                 Marker myLocationMarker = new Marker();
                 myLocationMarker.setPosition(new LatLng(lat, lon));
@@ -169,19 +214,10 @@ public class PleaseMain_act extends AppCompatActivity
                 mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
                 Toast.makeText(getApplicationContext(),
                         lat + ", " + lon, Toast.LENGTH_SHORT).show();
-
-                float distanceToMarker1 = location.distanceTo(new Location("Marker1") {{
-                    setLatitude(userLat);
-                    setLongitude(userLon);
-                }});
-                // 현재 위치에서 마커2까지의 거리 계산
-                marker1.setOnClickListener(overlay -> {
-                    showCustomModal("마커 정보", "", distanceToMarker1, userId);
-                    return true;
-                });
             }
         });
     }
+
     private void showCustomModal(String title, String content, float distance, String userId) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
@@ -254,4 +290,5 @@ public class PleaseMain_act extends AppCompatActivity
 
         dialog.show();
     }
+
 }
