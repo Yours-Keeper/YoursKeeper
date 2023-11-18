@@ -27,6 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.TotpSecret;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
@@ -112,17 +113,12 @@ public class PleaseMain_act extends AppCompatActivity
         // 권한 확인, 결과는 onRequestPermissionResult 콜백 메서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
 
-        Marker marker1 = new Marker();
-        marker1.setPosition(new LatLng(37.4974358, 126.9530382));
-        marker1.setMap(naverMap);
 
-        Marker marker2 = new Marker();
-        marker2.setPosition(new LatLng(37.4985318, 126.9580722));
-        marker2.setMap(naverMap);
 
         naverMap.addOnLocationChangeListener(new NaverMap.OnLocationChangeListener() {
             @Override
             public void onLocationChange(@NonNull Location location) {
+
                 lat = location.getLatitude();
                 lon = location.getLongitude();
                 incircle.setOutlineWidth(7);
@@ -138,6 +134,31 @@ public class PleaseMain_act extends AppCompatActivity
                 outcircle.setRadius(200);
                 outcircle.setMap(mNaverMap);
                 outcircle.setColor(Color.argb(0, 0, 0, 0));
+                Marker marker1 = new Marker();
+                if (userId != null) {
+                    db.collection("storeContent").document(userId).get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document != null && document.exists()) {
+                                        double userLat = document.getDouble("lat");
+                                        double userLon = document.getDouble("lon");
+                                        marker1.setPosition(new LatLng(userLat, userLon));
+                                        marker1.setMap(naverMap);
+                                    } else {
+                                        // Firestore 문서가 없거나 null인 경우
+                                        Log.d(TAG, "문서 존재하지 않음");
+                                    }
+                                } else {
+                                    // 작업이 예외와 함께 실패한 경우
+                                    Exception exception = task.getException();
+                                    if (exception != null) {
+                                        Log.e(TAG, "문서 가져오기 오류", exception);
+                                    }
+                                }
+                            });
+                }
+
 
                 Marker myLocationMarker = new Marker();
                 myLocationMarker.setPosition(new LatLng(lat, lon));
@@ -153,20 +174,14 @@ public class PleaseMain_act extends AppCompatActivity
                     setLatitude(marker1.getPosition().latitude);
                     setLongitude(marker1.getPosition().longitude);
                 }});
-
                 // 현재 위치에서 마커2까지의 거리 계산
-
-
                 marker1.setOnClickListener(overlay -> {
                     showCustomModal("마커 정보", "", distanceToMarker1, userId);
                     return true;
                 });
-
-
             }
         });
     }
-
     private void showCustomModal(String title, String content, float distance, String userId) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
@@ -176,6 +191,8 @@ public class PleaseMain_act extends AppCompatActivity
         TextView modalDistance = dialog.findViewById(R.id.modalDistance);
 
         textModalContent.setText(content);
+
+
         modalDistance.setText(String.format("거리: %.0f 미터", distance));
 
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
