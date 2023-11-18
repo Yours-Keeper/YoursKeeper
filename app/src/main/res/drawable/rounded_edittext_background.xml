@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="12dp" /> <!-- 둥근 정도를 조절하려면 radius 값을 조정하세요 -->
+    <solid android:color="#ebffec" /> <!-- EditText의 배경 색상을 설정하세요 -->
+
+</shape>
