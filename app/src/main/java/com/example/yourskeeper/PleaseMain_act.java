@@ -158,7 +158,7 @@ public class PleaseMain_act extends AppCompatActivity
 
 
                 marker1.setOnClickListener(overlay -> {
-                    showCustomModal("마커 정보", "원하는 내용을 입력하세요.", distanceToMarker1, userId);
+                    showCustomModal("마커 정보", "", distanceToMarker1, userId);
                     return true;
                 });
 
@@ -172,6 +172,7 @@ public class PleaseMain_act extends AppCompatActivity
         dialog.setContentView(R.layout.dialog_custom);
 
         TextView textModalContent = dialog.findViewById(R.id.modalTitle);
+        TextView textTime = dialog.findViewById(R.id.modalTime);
         TextView modalDistance = dialog.findViewById(R.id.modalDistance);
 
         textModalContent.setText(content);
@@ -185,9 +186,28 @@ public class PleaseMain_act extends AppCompatActivity
                             DocumentSnapshot document = task.getResult();
                             if (document != null && document.exists()) {
                                 String userNickname = document.getString("name");
-
                                 // 사용자의 닉네임으로 모달 텍스트 설정
                                 textModalContent.setText(userNickname);
+                            } else {
+                                // Firestore 문서가 없거나 null인 경우
+                                Log.d(TAG, "문서 존재하지 않음");
+                            }
+                        } else {
+                            // 작업이 예외와 함께 실패한 경우
+                            Exception exception = task.getException();
+                            if (exception != null) {
+                                Log.e(TAG, "문서 가져오기 오류", exception);
+                            }
+                        }
+                    });
+            db.collection("storeContent").document(userId).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                String userTime = document.getString("time");
+                                // 사용자의 닉네임으로 모달 텍스트 설정
+                                textTime.setText(userTime);
                             } else {
                                 // Firestore 문서가 없거나 null인 경우
                                 Log.d(TAG, "문서 존재하지 않음");

@@ -125,13 +125,15 @@
         android:layout_marginBottom="20dp"
 
         android:gravity="center">
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
                 android:id="@+id/edit_contents"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="ex)\n- 서울특별시 동작구 별다방 2층 계단 앞에 있어요!\n- 카페라 자리가 넓지 않아서 크기가 작은 물건이면 좋겠어요\n- 냄새나는 물건은 안돼요!"
                 android:gravity="top|left"
+                android:maxLines="10"
                 android:padding="10dp"
+                android:inputType="textMultiLine"
                 android:background="@drawable/rounded_edittext_background"
                 />
 
