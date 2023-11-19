@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import android.widget.Button;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.TotpSecret;
@@ -88,6 +90,7 @@ public class PleaseMain_act extends AppCompatActivity
     private double lat, lon;
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
+
     private static final String[] PERMISSIONS = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -111,12 +114,17 @@ public class PleaseMain_act extends AppCompatActivity
         // Firebase 인증 객체 초기화
         mAuth = FirebaseAuth.getInstance();
 
-
         // Firebase Firestore 객체 초기화
         db = FirebaseFirestore.getInstance();
-
+        FloatingActionButton goPleaseListButton = findViewById(R.id.fabMenu);
         // ...
-
+        goPleaseListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                goPleaseList(user);
+            }
+        });
         // 위 코드 아래에 Firebase 사용자 정보 가져오기
         currentUser = mAuth.getCurrentUser();
 
@@ -207,7 +215,6 @@ public class PleaseMain_act extends AppCompatActivity
                                 }
                             });
                 }
-
                 Marker myLocationMarker = new Marker();
                 myLocationMarker.setPosition(new LatLng(lat, lon));
                 myLocationMarker.setIconTintColor(Color.parseColor("#FFFF00")); // 노란색 틴트
@@ -244,5 +251,10 @@ public class PleaseMain_act extends AppCompatActivity
 
         dialog.show();
     }
-
+    private void goPleaseList(FirebaseUser user) {
+        String userId = user.getUid(); // 사용자 ID 가져오기
+        Intent intent = new Intent(this, PleaseListMain.class);
+        startActivity(intent);
+        intent.putExtra("USER_ID", userId);
+    }
 }
