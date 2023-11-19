@@ -76,6 +76,8 @@ import com.naver.maps.map.util.FusedLocationSource;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import org.w3c.dom.Text;
+
 public class PleaseMain_act extends AppCompatActivity
         implements OnMapReadyCallback {
     private FirebaseAuth mAuth;  // Firebase 인증 객체
@@ -108,6 +110,7 @@ public class PleaseMain_act extends AppCompatActivity
         setContentView(R.layout.activity_please_main);
         // Firebase 인증 객체 초기화
         mAuth = FirebaseAuth.getInstance();
+
 
         // Firebase Firestore 객체 초기화
         db = FirebaseFirestore.getInstance();
@@ -142,7 +145,6 @@ public class PleaseMain_act extends AppCompatActivity
         mNaverMap = naverMap;
         mNaverMap.setLocationSource(locationSource);
         String userId = currentUser != null ? currentUser.getUid() : null;
-
         CircleOverlay incircle = new CircleOverlay();
         CircleOverlay outcircle = new CircleOverlay();
         // 권한 확인, 결과는 onRequestPermissionResult 콜백 메서드 호출
@@ -175,7 +177,8 @@ public class PleaseMain_act extends AppCompatActivity
                                         if (document.exists()) {
                                             double userLat = document.getDouble("lat");
                                             double userLon = document.getDouble("lon");
-
+                                            String nickName = document.getString("nickname");
+                                            String userTime = document.getString("time");
                                             // Add a marker for each document in the "storeContent" collection
                                             Marker marker = new Marker();
                                             marker.setPosition(new LatLng(userLat, userLon));
@@ -187,7 +190,7 @@ public class PleaseMain_act extends AppCompatActivity
                                                     setLatitude(userLat);
                                                     setLongitude(userLon);
                                                 }});
-                                                showCustomModal("Marker information", "", distanceToMarker, userId);
+                                                showCustomModal("Marker information",nickName,  distanceToMarker, userId, userTime);
                                                 return true;
                                             });
                                         } else {
@@ -218,73 +221,24 @@ public class PleaseMain_act extends AppCompatActivity
         });
     }
 
-    private void showCustomModal(String title, String content, float distance, String userId) {
+    private void showCustomModal(String title,String nickname,  float distance, String userId, String userTime) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
-
-        TextView textModalContent = dialog.findViewById(R.id.modalTitle);
+        TextView textTitle= dialog.findViewById(R.id.modalTitle);
         TextView textTime = dialog.findViewById(R.id.modalTime);
         TextView modalDistance = dialog.findViewById(R.id.modalDistance);
-
-        textModalContent.setText(content);
-
-
+        textTitle.setText(nickname);
+        textTime.setText(userTime);
         modalDistance.setText(String.format("거리: %.0f 미터", distance));
-
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
-        if (userId != null) {
-            db.collection("users").document(userId).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document != null && document.exists()) {
-                                String userNickname = document.getString("name");
-                                // 사용자의 닉네임으로 모달 텍스트 설정
-                                textModalContent.setText(userNickname);
-                            } else {
-                                // Firestore 문서가 없거나 null인 경우
-                                Log.d(TAG, "문서 존재하지 않음");
-                            }
-                        } else {
-                            // 작업이 예외와 함께 실패한 경우
-                            Exception exception = task.getException();
-                            if (exception != null) {
-                                Log.e(TAG, "문서 가져오기 오류", exception);
-                            }
-                        }
-                    });
-            db.collection("storeContent").document(userId).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document != null && document.exists()) {
-                                String userTime = document.getString("time");
-                                // 사용자의 닉네임으로 모달 텍스트 설정
-                                textTime.setText(userTime);
-                            } else {
-                                // Firestore 문서가 없거나 null인 경우
-                                Log.d(TAG, "문서 존재하지 않음");
-                            }
-                        } else {
-                            // 작업이 예외와 함께 실패한 경우
-                            Exception exception = task.getException();
-                            if (exception != null) {
-                                Log.e(TAG, "문서 가져오기 오류", exception);
-                            }
-                        }
-                    });
-        }
-
         Window window = dialog.getWindow();
         if (window != null) {
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(window.getAttributes());
             layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
             layoutParams.y = 200; // 20픽셀 위에 위치
-
             layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
             layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-
             window.setAttributes(layoutParams);
         }
 
