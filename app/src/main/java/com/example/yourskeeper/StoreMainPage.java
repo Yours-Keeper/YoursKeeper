@@ -1,5 +1,7 @@
 package com.example.yourskeeper;
 
+import static android.content.ContentValues.TAG;
+
 import android.location.Location;
 import android.os.Bundle;
 
@@ -9,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.text.InputType;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -23,6 +26,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -69,6 +73,30 @@ public class StoreMainPage extends AppCompatActivity {
                 return false;
             }
         });
+        Intent intent = getIntent();
+        String userId = intent.getStringExtra("USER_ID");
+        HashMap<String, Object> data = new HashMap<>();
+        if(userId !=null) {
+            db.collection("users").document(userId).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                String userNickname = document.getString("name");
+                                data.put("nickname", userNickname);
+                            } else {
+                                // Firestore 문서가 없거나 null인 경우
+                                Log.d(TAG, "문서 존재하지 않음");
+                            }
+                        } else {
+                            // 작업이 예외와 함께 실패한 경우
+                            Exception exception = task.getException();
+                            if (exception != null) {
+                                Log.e(TAG, "문서 가져오기 오류", exception);
+                            }
+                        }
+                    });
+        }
 
         completeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,9 +108,6 @@ public class StoreMainPage extends AppCompatActivity {
                 String timeMinute2 = editText4.getText().toString();
                 content = content.replace("\n", "\\n");
                 String resultTime = timeHour1 + ":" + timeMinute1 + " ~ " + timeHour2 + ":" + timeMinute2;
-                Intent intent = getIntent();
-                String userId = intent.getStringExtra("USER_ID");
-                HashMap<String, Object> data = new HashMap<>();
                 data.put("content", content);
                 data.put("time", resultTime);
                 // Get the last known location
@@ -91,12 +116,10 @@ public class StoreMainPage extends AppCompatActivity {
                     if (location != null) {
                         lat = location.getLatitude();
                         lon = location.getLongitude();
-
                         data.put("lat", lat);
                         data.put("lon", lon);
                         // Firestore에 데이터 저장
                         db.collection("storeContent").document(userId).set(data);
-
                         // 액티비티 종료
                         goBack();
                     } else {
