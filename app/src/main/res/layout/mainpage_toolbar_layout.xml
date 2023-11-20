@@ -19,7 +19,7 @@
         android:textColor="@color/black" />
 
     <ImageView
-        android:id="@+id/btnMenu"
+        android:id="@+id/mainPage_btnMenu"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/top_menu"
