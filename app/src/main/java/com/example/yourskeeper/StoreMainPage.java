@@ -82,7 +82,7 @@ public class StoreMainPage extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document != null && document.exists()) {
-                                String userNickname = document.getString("name");
+                                String userNickname = document.getString("nickname");
                                 data.put("nickname", userNickname);
                             } else {
                                 // Firestore 문서가 없거나 null인 경우
