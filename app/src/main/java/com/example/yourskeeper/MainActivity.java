@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, NicknameActivity.class);
             intent.putExtra("USER_ID", userId);
+
             startActivity(intent);
         }
     }
