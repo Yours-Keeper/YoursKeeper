@@ -21,5 +21,13 @@
 
         <item name="android:windowBackground">@drawable/rounded_dialog_bg</item> <!-- 새로운 배경 drawable 지정 -->
     </style>
+    <style name="RoundedCornersDialog_signout" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@drawable/rounded_dialog_bg</item> <!-- 새로운 배경 drawable 지정 -->
+    </style>
 
 </resources>

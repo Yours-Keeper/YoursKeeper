@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/mainpage_toolbar"
+        layout="@layout/mainpage_toolbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+
+        android:padding="0dp"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/complete_please_Btn"
+            android:background="@drawable/round_border"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:text="부탁해요"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_margin="50dp"
+            android:backgroundTint="#FAFF06" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/complete_store_Btn"
+            android:background="@drawable/round_border"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:hint="등록 완료"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_marginTop="50dp"
+            android:backgroundTint="#FFFCB2" />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            >
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/change_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="수정"
+                android:textStyle="bold"
+                android:textSize="23sp"
+                android:background="@drawable/round_border"
+                android:backgroundTint="#FAFF06"
+                android:layout_marginEnd="3dp"
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/delete_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="삭제"
+                android:textStyle="bold"
+                android:textSize="23sp"
+                android:background="@drawable/round_border"
+                android:backgroundTint="#FAFF06"
+                android:layout_marginStart="3dp"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

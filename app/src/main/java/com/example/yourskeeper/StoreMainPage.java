@@ -74,7 +74,15 @@ public class StoreMainPage extends AppCompatActivity {
             }
         });
         Intent intent = getIntent();
-        String userId = intent.getStringExtra("USER_ID");
+        String userId;
+        String fromMainPage = intent.getStringExtra("USER_ID");
+        String fromStoreTextComplete = intent.getStringExtra("USER_ID_from_StoreTextComplete");
+        if (fromMainPage != null){
+            userId = fromMainPage;
+        }
+        else {
+            userId = fromStoreTextComplete;
+        }
         HashMap<String, Object> data = new HashMap<>();
         if(userId !=null) {
             db.collection("users").document(userId).get()
@@ -121,7 +129,7 @@ public class StoreMainPage extends AppCompatActivity {
                         // Firestore에 데이터 저장
                         db.collection("storeContent").document(userId).set(data);
                         // 액티비티 종료
-                        goBack();
+                        goStoreTextComplete();
                     } else {
                         // 위치 정보를 가져오지 못했을 때 처리 (예: Toast 메시지 등)
                         Toast.makeText(StoreMainPage.this, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
@@ -163,8 +171,8 @@ public class StoreMainPage extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
     }
 
-    private void goBack() {
-        Intent intent = new Intent(StoreMainPage.this, MainPageActivity.class);
+    private void goStoreTextComplete() {
+        Intent intent = new Intent(this, StoreTextComplete.class);
         startActivity(intent);
     }
 }
