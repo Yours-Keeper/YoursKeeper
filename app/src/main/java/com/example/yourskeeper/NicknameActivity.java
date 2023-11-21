@@ -51,10 +51,14 @@ public class NicknameActivity extends AppCompatActivity {
                 Intent intent = getIntent();
                 String userId = intent.getStringExtra("USER_ID");
                 Map<String, Object> data = new HashMap<>();
+                Map<String, Object> datas = new HashMap<>();
                 data.put("nickname", nickname);
                 data.put("reliability_point", 70);
+                datas.put("point", 70);
+                datas.put("nickname", nickname);
                 data.put("timestamp", FieldValue.serverTimestamp());
                 users.document(userId).set(data);
+                db.collection("storeContent").document(userId).update(datas);
                 updateUI();
             }
         });
