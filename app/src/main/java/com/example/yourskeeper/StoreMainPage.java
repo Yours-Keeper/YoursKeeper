@@ -119,7 +119,7 @@ public class StoreMainPage extends AppCompatActivity {
                         data.put("lat", lat);
                         data.put("lon", lon);
                         // Firestore에 데이터 저장
-                        db.collection("storeContent").document(userId).set(data);
+                        db.collection("storeContent").document(userId).update(data);
                         // 액티비티 종료
                         goBack();
                     } else {
