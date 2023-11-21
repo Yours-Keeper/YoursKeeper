@@ -51,6 +51,7 @@ public class MainPageActivity extends AppCompatActivity {
         Button pleaseButton = findViewById(R.id.please_Btn);
         Button storeButton = findViewById(R.id.store_Btn);
         ImageView mainPageBtnMenu = findViewById(R.id.mainPage_btnMenu);
+        mAuth = FirebaseAuth.getInstance();
 
         mainPageBtnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
