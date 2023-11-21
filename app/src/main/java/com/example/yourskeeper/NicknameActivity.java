@@ -40,7 +40,6 @@ public class NicknameActivity extends AppCompatActivity {
 
         initializeCloudFirestore();
 
-        Button signOutButton = findViewById(R.id.signout);
         Button registButton = findViewById(R.id.nickname_registration_btn);
         EditText nicknameEditText = findViewById(R.id.nickname_editText);
 
@@ -57,14 +56,6 @@ public class NicknameActivity extends AppCompatActivity {
                 data.put("timestamp", FieldValue.serverTimestamp());
                 users.document(userId).set(data);
                 updateUI();
-            }
-        });
-
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signOut();
-                finish();
             }
         });
     }
@@ -86,7 +77,7 @@ public class NicknameActivity extends AppCompatActivity {
                         Log.d(TAG, "DocumentSnapshot data: " + data);
                         //닉네임이 데이터가 들어있는지 확인
                         if ((String) data.get("nickname") != null){
-                            goMainPage();
+                            updateUI();
                         }
                     } else {
                         Log.d(TAG, "No such document");
@@ -102,17 +93,9 @@ public class NicknameActivity extends AppCompatActivity {
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
     }
-
-    private void signOut() {
-        FirebaseAuth.getInstance().signOut();
-    }
     private void updateUI() {
         Intent intent = new Intent(this, MainPageActivity.class);
         startActivity(intent);
-    }
-
-    private void goMainPage() {
-        Intent intent = new Intent(this, MainPageActivity.class);
-        startActivity(intent);
+        finish();
     }
 }

@@ -15,6 +15,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,11 +52,13 @@ public class MainPageActivity extends AppCompatActivity {
         Button pleaseButton = findViewById(R.id.please_Btn);
         Button storeButton = findViewById(R.id.store_Btn);
         ImageView mainPageBtnMenu = findViewById(R.id.mainPage_btnMenu);
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         mainPageBtnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showMenuPopup();
+                showMenuPopup(v);
             }
         });
 
@@ -89,36 +92,69 @@ public class MainPageActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void showMenuPopup() {
-        // 사용자 정의 레이아웃을 인플레이트합니다.
-        View popupView = getLayoutInflater().inflate(R.layout.menu, null);
+    private void showMenuPopup(View anchorView) {
+        View popupView = LayoutInflater.from(this).inflate(R.layout.menu, null);
+        int width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true;
+        PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
-        // PopupWindow를 생성합니다.
-        PopupWindow popupWindow = new PopupWindow(
-                popupView,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
+        // 팝업 내 TextView 요소에 대한 참조 가져오기
+        TextView nicknameTextView = popupView.findViewById(R.id.nickname);
+        TextView reliabilityPointTextView = popupView.findViewById(R.id.reliability_point);
+        TextView logoutTextView = popupView.findViewById(R.id.menu_signout);
 
-        // 투명성 문제를 방지하기 위해 단색의 배경 드로어블을 설정합니다.
-        popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        // Firestore에서 사용자 데이터를 가져와 TextView에 값 설정
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            DocumentReference userDocRef = db.collection("users").document(userId);
 
-        // 포커스 가능하게 설정하고 팝업을 화면 중앙에 표시합니다.
-        popupWindow.setFocusable(true);
-        popupWindow.showAtLocation(popupView, Gravity.TOP | Gravity.END, 30, 100);
+            userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // 사용자 데이터 가져오기 및 TextView에 값 설정
+                            String nickname = document.getString("nickname");
+                            Long reliabilityPoint = document.getLong("reliability_point");
 
-        // 팝업 외부의 뷰를 클릭하면 팝업을 닫습니다.
-        popupView.setOnTouchListener(new View.OnTouchListener() {
+                            if (nickname != null) {
+                                nicknameTextView.setText(nickname);
+                            }
+
+                            if (reliabilityPoint != null) {
+                                reliabilityPointTextView.setText(String.valueOf(reliabilityPoint) + "점");
+                            }
+                        } else {
+                            Log.d(TAG, "문서가 존재하지 않습니다.");
+                        }
+                    } else {
+                        Log.d(TAG, "데이터 가져오기 실패: ", task.getException());
+                    }
+                }
+            });
+        }
+
+        // logoutTextView에 대한 onClickListener 설정
+        logoutTextView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                popupWindow.dismiss();
-                return true;
+            public void onClick(View v) {
+                // 로그아웃 액션 처리
+                signOut();
+                // 필요에 따라 추가적인 로그아웃 로직을 추가할 수 있습니다.
+                // 예를 들어, 사용자를 로그인 페이지로 리디렉션할 수 있습니다.
             }
         });
 
-        // 사용자 정의 레이아웃 내부의 뷰에 액세스하고 데이터 또는 동작을 설정합니다.
-
-//        TextView nicknameTextView = popupView.findViewById(R.id.nickname);
-//        nicknameTextView.setText("nickname");
+        // 팝업 창 표시
+        popupWindow.showAtLocation(popupView, Gravity.TOP | Gravity.END, 30, 100);
     }
+    private void signOut() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
 }
