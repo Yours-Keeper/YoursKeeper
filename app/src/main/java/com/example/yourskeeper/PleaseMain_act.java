@@ -80,6 +80,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.w3c.dom.Text;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PleaseMain_act extends AppCompatActivity
         implements OnMapReadyCallback {
     private FirebaseAuth mAuth;  // Firebase 인증 객체
@@ -121,8 +124,8 @@ public class PleaseMain_act extends AppCompatActivity
         goPleaseListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                goPleaseList(user);
+
+                goPleaseList();
             }
         });
         // 위 코드 아래에 Firebase 사용자 정보 가져오기
@@ -176,6 +179,17 @@ public class PleaseMain_act extends AppCompatActivity
                 outcircle.setRadius(200);
                 outcircle.setMap(mNaverMap);
                 outcircle.setColor(Color.argb(0, 0, 0, 0));
+                Map<String, Object> data = new HashMap<>();
+
+                Marker myLocationMarker = new Marker();
+                myLocationMarker.setPosition(new LatLng(lat, lon));
+                myLocationMarker.setIconTintColor(Color.parseColor("#FFFF00")); // 노란색 틴트
+                myLocationMarker.setWidth(50);
+                myLocationMarker.setHeight(50);
+                myLocationMarker.setMap(mNaverMap);
+                mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
+                Toast.makeText(getApplicationContext(),
+                        lat + ", " + lon, Toast.LENGTH_SHORT).show();
 
                 if (userId != null) {
                     db.collection("storeContent").get()
@@ -187,18 +201,25 @@ public class PleaseMain_act extends AppCompatActivity
                                             double userLon = document.getDouble("lon");
                                             String nickName = document.getString("nickname");
                                             String userTime = document.getString("time");
+
                                             // Add a marker for each document in the "storeContent" collection
                                             Marker marker = new Marker();
                                             marker.setPosition(new LatLng(userLat, userLon));
                                             marker.setMap(naverMap);
 
+                                            // Calculate distance to each marker
+                                            float distanceToMarker = location.distanceTo(new Location("Marker") {{
+                                                setLatitude(userLat);
+                                                setLongitude(userLon);
+                                            }});
+                                            data.put("distance", distanceToMarker);
+
+                                            // Update distance in Firestore
+                                            db.collection("storeContent").document(document.getId()).update(data);
+
                                             // Handle click event
                                             marker.setOnClickListener(overlay -> {
-                                                float distanceToMarker = location.distanceTo(new Location("Marker") {{
-                                                    setLatitude(userLat);
-                                                    setLongitude(userLon);
-                                                }});
-                                                showCustomModal("Marker information",nickName,  distanceToMarker, userId, userTime);
+                                                showCustomModal("Marker information", nickName, distanceToMarker, userId, userTime);
                                                 return true;
                                             });
                                         } else {
@@ -215,15 +236,8 @@ public class PleaseMain_act extends AppCompatActivity
                                 }
                             });
                 }
-                Marker myLocationMarker = new Marker();
-                myLocationMarker.setPosition(new LatLng(lat, lon));
-                myLocationMarker.setIconTintColor(Color.parseColor("#FFFF00")); // 노란색 틴트
-                myLocationMarker.setWidth(50);
-                myLocationMarker.setHeight(50);
-                myLocationMarker.setMap(mNaverMap);
-                mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
-                Toast.makeText(getApplicationContext(),
-                        lat + ", " + lon, Toast.LENGTH_SHORT).show();
+
+
             }
         });
     }
@@ -251,10 +265,10 @@ public class PleaseMain_act extends AppCompatActivity
 
         dialog.show();
     }
-    private void goPleaseList(FirebaseUser user) {
-        String userId = user.getUid(); // 사용자 ID 가져오기
-        Intent intent = new Intent(this, PleaseListMain.class);
+    private void goPleaseList() {
+
+        Intent intent = new Intent(this, PleaseList.class);
         startActivity(intent);
-        intent.putExtra("USER_ID", userId);
+
     }
 }

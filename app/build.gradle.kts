@@ -69,8 +69,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     implementation ("com.google.android.material:material:1.10.0")
-
+    implementation ("com.firebaseui:firebase-ui-firestore:8.0.0")
     // Declare the dependency for the Cloud Firestore library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-firestore")
+    implementation ("androidx.paging:paging-runtime:3.2.1")
 }
