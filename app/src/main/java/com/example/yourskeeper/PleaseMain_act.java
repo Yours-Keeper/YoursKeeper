@@ -155,6 +155,8 @@ public class PleaseMain_act extends AppCompatActivity
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
         mNaverMap = naverMap;
         mNaverMap.setLocationSource(locationSource);
+        naverMap.setMinZoom(14.0); // 원하는 값으로 조절 가능
+        naverMap.setMaxZoom(17.0); // 원하는 값으로 조절 가능
         String userId = currentUser != null ? currentUser.getUid() : null;
         CircleOverlay incircle = new CircleOverlay();
         CircleOverlay outcircle = new CircleOverlay();
