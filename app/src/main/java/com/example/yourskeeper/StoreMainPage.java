@@ -126,7 +126,7 @@ public class StoreMainPage extends AppCompatActivity {
                         lon = location.getLongitude();
                         data.put("lat", lat);
                         data.put("lon", lon);
-                        data.put("point", 70);
+                        data.put("point", 80);
                         // Firestore에 데이터 저장
                         db.collection("storeContent").document(userId).set(data);
                         goStoreTextComplete();
