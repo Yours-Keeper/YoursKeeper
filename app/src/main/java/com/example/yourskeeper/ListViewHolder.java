@@ -14,11 +14,10 @@ public class ListViewHolder extends RecyclerView.ViewHolder {
    private final TextView mDistanceField;
     public ListViewHolder(@NonNull View itemView) {
         super(itemView);
-
         mNameField = itemView.findViewById(R.id.item_nickname);
         mTextField = itemView.findViewById(R.id.item_time);
-     mDistanceField = itemView.findViewById(R.id.item_distance);
-       mScoreField = itemView.findViewById(R.id.item_point);
+        mDistanceField = itemView.findViewById(R.id.item_distance);
+        mScoreField = itemView.findViewById(R.id.item_point);
     }
 
     public void bind(@NonNull Store store) {
