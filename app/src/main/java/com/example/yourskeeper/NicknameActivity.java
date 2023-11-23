@@ -53,7 +53,7 @@ public class NicknameActivity extends AppCompatActivity {
                 Map<String, Object> data = new HashMap<>();
                 Map<String, Object> datas = new HashMap<>();
                 data.put("nickname", nickname);
-                data.put("reliability_point", 70);
+                data.put("reliability_point", 80);
                 data.put("timestamp", FieldValue.serverTimestamp());
                 users.document(userId).set(data);
                 updateUI();
