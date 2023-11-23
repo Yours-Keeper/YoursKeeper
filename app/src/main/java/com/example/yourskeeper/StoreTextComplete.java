@@ -33,7 +33,7 @@ public class StoreTextComplete extends AppCompatActivity {
         changeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteTochange();
+                deleteToChange();
             }
         });
 
@@ -45,7 +45,7 @@ public class StoreTextComplete extends AppCompatActivity {
         });
     }
     // 수정을 누르면 일단 db에서 지우고
-    private void deleteTochange(){
+    private void deleteToChange(){
         FirebaseUser user = mAuth.getCurrentUser();
         String userId = user.getUid();
 
