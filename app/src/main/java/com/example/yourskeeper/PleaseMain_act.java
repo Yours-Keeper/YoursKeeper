@@ -188,8 +188,7 @@ public class PleaseMain_act extends AppCompatActivity
                 myLocationMarker.setHeight(50);
                 myLocationMarker.setMap(mNaverMap);
                 mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
-                Toast.makeText(getApplicationContext(),
-                        lat + ", " + lon, Toast.LENGTH_SHORT).show();
+
 
                 if (userId != null) {
                     db.collection("storeContent").get()
