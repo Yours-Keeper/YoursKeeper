@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recycler_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"/>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_alignParentBottom="true"
+      android:paddingVertical="5dp"
+      android:background="@color/black">
+
+    <ImageButton
+        android:id="@+id/ckeck_Btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/check"
+        android:backgroundTint="@color/black"/>
+
+    <EditText
+        android:id="@+id/chat_text"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:inputType="textMultiLine"
+        android:layout_marginVertical="5dp"
+        android:background="@color/white"/>
+
+    <ImageButton
+        android:id="@+id/send_Btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/transmit"
+        android:backgroundTint="@color/black"/>
+
+  </LinearLayout>
+
+</RelativeLayout>
