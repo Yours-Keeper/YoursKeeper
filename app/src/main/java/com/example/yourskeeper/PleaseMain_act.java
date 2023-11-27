@@ -251,7 +251,7 @@ public class PleaseMain_act extends AppCompatActivity
         TextView modalDistance = dialog.findViewById(R.id.modalDistance);
         textTitle.setText(nickname);
         textTime.setText(userTime);
-        modalDistance.setText(String.format("거리: %.0f 미터", distance));
+        modalDistance.setText(String.format("%.0f 미터", distance));
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
         Window window = dialog.getWindow();
         if (window != null) {
