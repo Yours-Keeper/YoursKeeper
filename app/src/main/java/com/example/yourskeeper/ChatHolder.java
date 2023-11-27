@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.sql.Timestamp;
+
 public class ChatHolder extends RecyclerView.ViewHolder {
     private final TextView mNameField;
     private final TextView mTextField;
@@ -29,4 +31,5 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     private void setMessage(@Nullable String text) {
         mTextField.setText(text);
     }
+
 }

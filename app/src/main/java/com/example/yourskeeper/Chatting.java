@@ -1,10 +1,14 @@
 package com.example.yourskeeper;
 
+import static androidx.constraintlayout.widget.ConstraintLayoutStates.TAG;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +17,13 @@ import android.widget.ImageButton;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -100,35 +108,44 @@ public class Chatting extends AppCompatActivity {
     private void addData() {
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        String userId = String.valueOf(currentUser); //자동완성함 주의 요망
+        String userId = currentUser.getUid();
+
+//        String userName = currentUser.getDisplayName();
         EditText chatText = findViewById(R.id.chat_text);
 
         CollectionReference chats = db.collection("chats");
         Map<String, Object> data = new HashMap<>();
         String text = chatText.getText().toString();
-        CollectionReference collectionRef = db.collection("users"); //확인해보기 안된다면 컬렉션의 필드 값 어떻게 가져오는지 다시 찾기
-        collectionRef.document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Object nicknameFromDB = documentSnapshot.get("nickname");
-                        // 필드 값(value)을 사용하여 작업 수행
-                        data.put("name", nicknameFromDB);
+        DocumentReference userdocRef = db.collection("users").document(userId);
+        userdocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // 문서(document)에서 필요한 데이터를 가져옴
+                        String name = document.getString("nickname");
+                        data.put("name", name);
+                        data.put("message", text);
+                        data.put("uid", userId);
+                        data.put("timestamp", FieldValue.serverTimestamp());
+                        chats.document("MSG_"+ System.currentTimeMillis()).set(data);
+                        // 가져온 데이터로 작업 수행
                     } else {
-                        // 해당 문서가 존재하지 않음
+                        // 문서가 존재하지 않음
                     }
-                })
-                .addOnFailureListener(e -> {
-                    // 실패 시 처리
-                });
+                } else {
+                    // 데이터 가져오기 실패 시 처리
+                }
+            }
+        });
 
 //        Intent intent = getIntent();
 //        String userId = intent.getStringExtra("USER_ID");
 
-        //data.put("name", );
-        data.put("message", text);
-        data.put("uid", userId);
-        data.put("timestamp", FieldValue.serverTimestamp());
-        chats.document("MSG_"+ System.currentTimeMillis()).set(data);
-
+//        data.put("message", text);
+//        data.put("uid", userId);
+//        data.put("timestamp", FieldValue.serverTimestamp());
+//        chats.document("MSG_"+ System.currentTimeMillis()).set(data);
     }
 }
