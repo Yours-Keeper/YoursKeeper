@@ -3,13 +3,17 @@ package com.example.yourskeeper;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -42,35 +47,47 @@ public class PleaseList extends AppCompatActivity {
                 .orderBy("time")
                 .limit(50);
         FloatingActionButton goPleaseMainButton = findViewById(R.id.mapBtn);
-        // ...
+
         goPleaseMainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 goPleaseMain();
             }
         });
-        // Configure recycler adapter options:
-        //  * query is the Query object defined above.
-        //  * Store.class instructs the adapter to convert each DocumentSnapshot to a Store object
+
         FirestoreRecyclerOptions<Store> options = new FirestoreRecyclerOptions.Builder<Store>()
                 .setQuery(query, Store.class)
                 .build();
-        FloatingActionButton goPleaseListButton = findViewById(R.id.fabMenu);
+
         adapter = new FirestoreRecyclerAdapter<Store, ListViewHolder>(options) {
             @Override
             protected void onBindViewHolder(ListViewHolder holder, int position, Store model) {
-                // Bind the Store object to the ListViewHolder
                 holder.bind(model);
             }
 
             @Override
             public ListViewHolder onCreateViewHolder(ViewGroup group, int i) {
-                // 사용자 지정 레이아웃을 사용하여 ViewHolder의 새 인스턴스 생성
                 View view = LayoutInflater.from(group.getContext())
                         .inflate(R.layout.list_item, group, false);
+                ListViewHolder viewHolder = new ListViewHolder(view);
 
-                return new ListViewHolder(view);
+                // RecyclerView 아이템 클릭 이벤트 처리
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // 클릭된 항목의 데이터 가져오기
+                        int position = viewHolder.getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            DocumentSnapshot document = getSnapshots().getSnapshot(position);
+                            Store store = document.toObject(Store.class);
+
+                            // 사용자 지정 다이얼로그 표시
+                            showCustomModal( store.getContent());
+                        }
+                    }
+                });
+
+                return viewHolder;
             }
         };
 
@@ -78,25 +95,48 @@ public class PleaseList extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
-    private void showCustomModal(String title,String nickname,  float distance, String userId, String userTime) {
+
+    private void showCustomModal(String content) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
-        dialog.setContentView(R.layout.dialog_custom);
-        TextView textTitle= dialog.findViewById(R.id.modalTitle);
-        TextView textTime = dialog.findViewById(R.id.modalTime);
-        TextView modalDistance = dialog.findViewById(R.id.modalDistance);
-        textTitle.setText(nickname);
-        textTime.setText(userTime);
-        modalDistance.setText(String.format("%.0f 미터", distance));
+        dialog.setContentView(R.layout.list_detail);
+
+        content = content.replace("\\n", "\n");
+        TextView textContent= dialog.findViewById(R.id.list_detail_content);
+        textContent.setText(content);
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
+        ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 다이얼로그 닫기
+                dialog.dismiss();
+            }
+        });
         Window window = dialog.getWindow();
         if (window != null) {
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(window.getAttributes());
-            layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            layoutParams.y = 200; // 20픽셀 위에 위치
-            layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+
+            // 배경 색상 및 투명도 설정
+            window.setBackgroundDrawable(new ColorDrawable(Color.argb(128, 0, 0, 0))); // 흰색 배경, 128은 투명도
             window.setAttributes(layoutParams);
+            dialog.findViewById(R.id.list_detail_dialog).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.show();
+
+                }
+            });
+            window.getDecorView().setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    // 다이얼로그 닫기
+                    dialog.dismiss();
+                    return true;
+                }
+            });
         }
 
         dialog.show();
@@ -113,10 +153,9 @@ public class PleaseList extends AppCompatActivity {
         super.onStop();
         adapter.stopListening();
     }
-    private void goPleaseMain() {
 
+    private void goPleaseMain() {
         Intent intent = new Intent(this, PleaseMain_act.class);
         startActivity(intent);
-
     }
 }

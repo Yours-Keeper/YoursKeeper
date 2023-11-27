@@ -12,23 +12,26 @@ public class Store {
     private Integer mPoint;
     private String mUid;
     private Float mDistance;
+    private String mContent;
     private Timestamp mTimestamp;
 
     public Store() { } // Needed for Firebase
 
-    public Store(String nickname, String time,String uid, Float distance, Integer point) {
+    public Store(String nickname, String time,String uid, Float distance, Integer point, String content) {
         mNickname = nickname;
         mPoint = point;
         mTime = time;
         mUid = uid;
-
+        mContent = content;
         mDistance =distance;
     }
 
     public String getNickname() { return mNickname; }
 
     public void setNickname(String nickname) { mNickname = nickname; }
+    public String getContent() { return mContent; }
 
+    public void setContent(String content) { mContent = content; }
     public String getTime() { return mTime; }
     public Float getDistance() {return mDistance;}
     public void setTime(String time) { mTime = time; }

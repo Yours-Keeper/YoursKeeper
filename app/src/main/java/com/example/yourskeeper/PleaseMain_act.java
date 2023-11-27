@@ -18,12 +18,17 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -63,6 +68,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -202,6 +208,8 @@ public class PleaseMain_act extends AppCompatActivity
                                             double userLon = document.getDouble("lon");
                                             String nickName = document.getString("nickname");
                                             String userTime = document.getString("time");
+                                            String content = document.getString("content");
+                                            long point = document.getLong("point");
 
                                             // Add a marker for each document in the "storeContent" collection
                                             Marker marker = new Marker();
@@ -220,7 +228,7 @@ public class PleaseMain_act extends AppCompatActivity
 
                                             // Handle click event
                                             marker.setOnClickListener(overlay -> {
-                                                showCustomModal("Marker information", nickName, distanceToMarker, userId, userTime);
+                                                showCustomModal("Marker information", nickName, distanceToMarker, userId, userTime, content, point);
                                                 return true;
                                             });
                                         } else {
@@ -243,29 +251,101 @@ public class PleaseMain_act extends AppCompatActivity
         });
     }
 
-    private void showCustomModal(String title,String nickname,  float distance, String userId, String userTime) {
+    private void showCustomModal(String title, String nickname, float distance, String userId, String userTime, String content, long point) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
-        TextView textTitle= dialog.findViewById(R.id.modalTitle);
+        TextView textTitle = dialog.findViewById(R.id.modalTitle);
         TextView textTime = dialog.findViewById(R.id.modalTime);
         TextView modalDistance = dialog.findViewById(R.id.modalDistance);
+        TextView modalScore = dialog.findViewById(R.id.modalScore);
         textTitle.setText(nickname);
+        modalScore.setText(String.valueOf(point));
         textTime.setText(userTime);
-        modalDistance.setText(String.format("%.0f 미터", distance));
+        modalDistance.setText(String.format("%.0f m", distance));
+
+        dialog.findViewById(R.id.dialog_custom_root).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss(); // Close current dialog
+                showCustomListModal(content); // Deliver appropriate content
+            }
+        });
+
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
         Window window = dialog.getWindow();
         if (window != null) {
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(window.getAttributes());
-            layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+
             layoutParams.y = 200; // 20픽셀 위에 위치
-            layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+            window.setBackgroundDrawable(new ColorDrawable(Color.argb(128, 0, 0, 0))); // 흰색 배경, 128은 투명도
             window.setAttributes(layoutParams);
+            window.getDecorView().setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    // 다이얼로그 닫기
+                    dialog.dismiss();
+                    return true;
+                }
+            });
+
         }
 
         dialog.show();
     }
+
+    private void showCustomListModal(String content) {
+        Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
+        dialog.setContentView(R.layout.list_detail);
+
+        content = content.replace("\\n", "\n");
+        TextView textContent = dialog.findViewById(R.id.list_detail_content);
+        textContent.setText(content);
+        ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 다이얼로그 닫기
+                dialog.dismiss();
+            }
+        });
+
+        // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.gravity = Gravity.CENTER;
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+
+            // 배경 색상 및 투명도 설정
+            window.setBackgroundDrawable(new ColorDrawable(Color.argb(128, 0, 0, 0))); // 흰색 배경, 128은 투명도
+            window.setAttributes(layoutParams);
+            dialog.findViewById(R.id.list_detail_dialog).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.show();
+
+                }
+            });
+
+            window.getDecorView().setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    // 다이얼로그 닫기
+                    dialog.dismiss();
+                    return true;
+                }
+            });
+
+        }
+
+        dialog.show();
+    }
+
     private void goPleaseList() {
 
         Intent intent = new Intent(this, PleaseList.class);
