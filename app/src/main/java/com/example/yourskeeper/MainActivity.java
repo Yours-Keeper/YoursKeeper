@@ -1,5 +1,7 @@
 package com.example.yourskeeper;
 
+import static androidx.constraintlayout.widget.ConstraintLayoutStates.TAG;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -30,6 +32,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<IntentSenderRequest> oneTapUILauncher;
 
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,21 +64,6 @@ public class MainActivity extends AppCompatActivity {
                 signIn();
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser != null) {
-            Log.d(TAG, "이미 로그인 했음");
-            updateUI(currentUser);
-        } else {
-            Log.d(TAG, "아직 로그인 안했음");
-        }
     }
 
     private void configOneTapSignUpOrSignInClient() {
@@ -106,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                             // Sign in success, update UI with the signed-in user's information
                                             Log.d(TAG, "signInWithCredential:success");
                                             FirebaseUser user = mAuth.getCurrentUser();
-                                            updateUI(user);
+                                            checkNickname(user);
                                         } else {
                                             // If sign in fails, display a message to the user.
                                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -124,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initFirebaseAuth() {
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
     }
 
     // https://developers.google.com/identity/one-tap/android/get-saved-credentials
@@ -148,6 +142,33 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void checkNickname(FirebaseUser user){
+        String userId = user.getUid();
+        DocumentReference docRef = db.collection("users").document(userId);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map<String, Object> data = document.getData(); // document를 map으로 가져옴
+
+                        Log.d(TAG, "DocumentSnapshot data: " + data);
+                        //닉네임이 데이터가 들어있는지 확인
+                        if ((String) data.get("nickname") != null){
+                            goMainPage();
+                        }
+                    } else {
+                        Log.d(TAG, "No such document");
+                        updateUI(user);
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
     private void updateUI(FirebaseUser user) {
         if (user != null) {
             String userId = user.getUid(); // 사용자 ID 가져오기
@@ -158,5 +179,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+    private void goMainPage(){
+        Intent intent = new Intent(this, MainPageActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
