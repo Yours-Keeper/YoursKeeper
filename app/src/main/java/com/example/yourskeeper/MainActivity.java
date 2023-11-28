@@ -15,6 +15,7 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
@@ -137,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
                         // No saved credentials found. Launch the One Tap sign-up flow, or
                         // do nothing and continue presenting the signed-out UI.
+                        Toast.makeText(MainActivity.this, "기기에 구글 계정 로그인이 돼있지 않습니다.", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, e.getLocalizedMessage());
                     }
                 });
