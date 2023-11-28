@@ -53,6 +53,7 @@ public class ShowMain extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 // 애니메이션이 끝날 때 수행할 작업
+                Log.d("JHJ", "onAnimationEnd: ");
                 checkDB();
             }
 
@@ -67,6 +68,7 @@ public class ShowMain extends AppCompatActivity {
     }
     private void checkDB(){
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        Log.d("JHJ", "checkDB: " + currentUser);
 
         // 1. 로그인이 안돼있으면 goMainActivity
         // 2. 로그인이 돼있는데 닉네임이 없으면 goNickname
@@ -74,7 +76,9 @@ public class ShowMain extends AppCompatActivity {
 
         if (currentUser != null) {
             checkNickname(currentUser);
+            Log.d("JHJ", "if currentUser != null : ");
         } else {
+            Log.d("JHJ", "else : ");
             goMainActivity();
         }
     }
@@ -90,13 +94,13 @@ public class ShowMain extends AppCompatActivity {
                     if (document.exists()) {
                         Map<String, Object> data = document.getData(); // document를 map으로 가져옴
 
-                        Log.d(TAG, "DocumentSnapshot data: " + data);
+                        Log.d("JHJ", "DocumentSnapshot data: " + data);
                         //닉네임이 데이터가 들어있는지 확인
                         if ((String) data.get("nickname") != null){
                             goMainPage();
                         }
                     } else {
-                        Log.d(TAG, "No such document");
+                        Log.d("JHJ", "No such document");
                         goNickname();
                     }
                 } else {
