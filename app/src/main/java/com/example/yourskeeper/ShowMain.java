@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Map;
 
 public class ShowMain extends AppCompatActivity {
+    // 로그아웃하지 않고 firestore에서 db만 삭제한 경우
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -34,6 +35,7 @@ public class ShowMain extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+
 
         // 애니메이션을 적용할 TextView
         TextView textView = findViewById(R.id.main_text);
@@ -68,15 +70,14 @@ public class ShowMain extends AppCompatActivity {
     }
     private void checkDB(){
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        Log.d("JHJ", "checkDB: " + currentUser);
 
         // 1. 로그인이 안돼있으면 goMainActivity
         // 2. 로그인이 돼있는데 닉네임이 없으면 goNickname
         // 3. 로그인 돼있고 닉네임도 있으면 goMainPage
 
         if (currentUser != null) {
+            Log.d("JHJ", "if currentUser != null");
             checkNickname(currentUser);
-            Log.d("JHJ", "if currentUser != null : ");
         } else {
             Log.d("JHJ", "else : ");
             goMainActivity();
@@ -99,9 +100,9 @@ public class ShowMain extends AppCompatActivity {
                         if ((String) data.get("nickname") != null){
                             goMainPage();
                         }
+                        else goNickname(userId);
                     } else {
                         Log.d("JHJ", "No such document");
-                        goNickname();
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
@@ -111,22 +112,21 @@ public class ShowMain extends AppCompatActivity {
     }
 
     private void goMainActivity(){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        Intent intent1 = new Intent(this, MainActivity.class);
+        startActivity(intent1);
         finish();
     }
 
-    private void goNickname(){
-        Intent intent = new Intent(this, NicknameActivity.class);
-        startActivity(intent);
+    private void goNickname(String userId){
+        Intent intent2 = new Intent(this, NicknameActivity.class);
+        intent2.putExtra("USER_ID", userId);
+        startActivity(intent2);
         finish();
     }
 
     private void goMainPage(){
-        Intent intent = new Intent(this, MainPageActivity.class);
-        startActivity(intent);
+        Intent intent3 = new Intent(this, MainPageActivity.class);
+        startActivity(intent3);
         finish();
     }
-
-
 }

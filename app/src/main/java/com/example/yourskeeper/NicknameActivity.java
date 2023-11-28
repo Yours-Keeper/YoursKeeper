@@ -2,6 +2,8 @@ package com.example.yourskeeper;
 
 import static androidx.constraintlayout.widget.ConstraintLayoutStates.TAG;
 
+import static com.google.android.material.internal.ViewUtils.hideKeyboard;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,9 +11,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,10 +44,20 @@ public class NicknameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nickname);
 
-        initializeCloudFirestore();
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         Button registButton = findViewById(R.id.nickname_registration_btn);
         EditText nicknameEditText = findViewById(R.id.nickname_editText);
+
+        FrameLayout rootLayout = findViewById(R.id.nickname_activity);
+        rootLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard();
+                return false;
+            }
+        });
 
         registButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,7 +67,6 @@ public class NicknameActivity extends AppCompatActivity {
                 Intent intent = getIntent();
                 String userId = intent.getStringExtra("USER_ID");
                 Map<String, Object> data = new HashMap<>();
-                Map<String, Object> datas = new HashMap<>();
                 data.put("nickname", nickname);
                 data.put("reliability_point", 80);
                 data.put("timestamp", FieldValue.serverTimestamp());
@@ -90,13 +105,17 @@ public class NicknameActivity extends AppCompatActivity {
         });
     }
 
-    private void initializeCloudFirestore() {
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
-    }
     private void updateUI() {
         Intent intent = new Intent(this, MainPageActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }
