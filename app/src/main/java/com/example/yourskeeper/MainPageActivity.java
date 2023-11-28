@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -40,6 +41,7 @@ import java.util.Map;
 public class MainPageActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private AlertDialog customDialog;
     private static final int PERMISSION_REQUEST_CODE = 1000;
     private static final String[] PERMISSIONS = {
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -142,7 +144,7 @@ public class MainPageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 로그아웃 액션 처리
-                signOut();
+                showSignoutDialog();
                 // 필요에 따라 추가적인 로그아웃 로직을 추가할 수 있습니다.
                 // 예를 들어, 사용자를 로그인 페이지로 리디렉션할 수 있습니다.
             }
@@ -150,6 +152,33 @@ public class MainPageActivity extends AppCompatActivity {
 
         // 팝업 창 표시
         popupWindow.showAtLocation(popupView, Gravity.TOP | Gravity.END, 30, 100);
+    }
+
+    private void showSignoutDialog(){
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.signout_dialog, null); // null 자리는 거의 null로만 씀
+
+        customDialog = new AlertDialog.Builder(MainPageActivity.this, R.style.RoundedCornersDialog_signout)
+                .setView(dialogView)
+                .create();
+
+        customDialog.show();
+
+        ImageView back = customDialog.findViewById(R.id.sign_out_back);
+        Button signOutButton = customDialog.findViewById(R.id.sign_out_button);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.dismiss();
+            }
+        });
+
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { // db에 store 정보를 삭제해야함
+                signOut();
+            }
+        });
     }
     private void signOut() {
         FirebaseAuth.getInstance().signOut();

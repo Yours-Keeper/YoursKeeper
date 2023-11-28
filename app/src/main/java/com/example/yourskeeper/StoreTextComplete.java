@@ -80,7 +80,7 @@ public class StoreTextComplete extends AppCompatActivity {
         customDialog.show();
 
         ImageView back = customDialog.findViewById(R.id.delete_back);
-        Button signOutButton = customDialog.findViewById(R.id.delete_confirm_button);
+        Button deleteButton = customDialog.findViewById(R.id.delete_confirm_button);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,7 +88,7 @@ public class StoreTextComplete extends AppCompatActivity {
             }
         });
 
-        signOutButton.setOnClickListener(new View.OnClickListener() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { // db에 store 정보를 삭제해야함
                 deleteDocument();
