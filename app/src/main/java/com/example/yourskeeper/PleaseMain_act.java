@@ -97,6 +97,7 @@ public class PleaseMain_act extends AppCompatActivity
     private FusedLocationSource locationSource;
     private NaverMap mNaverMap;
     private double lat, lon;
+    private String userNICK="주나준";
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
 
@@ -126,8 +127,7 @@ public class PleaseMain_act extends AppCompatActivity
         // Firebase Firestore 객체 초기화
         db = FirebaseFirestore.getInstance();
         FloatingActionButton goPleaseListButton = findViewById(R.id.fabMenu);
-        TextView textTitle = findViewById(R.id.toolbar_Titie);
-        textTitle.setText("내 근처의 Keeper");
+        // ...
         goPleaseListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -200,6 +200,25 @@ public class PleaseMain_act extends AppCompatActivity
 
 
                 if (userId != null) {
+                    db.collection("storeContent").document(userId).get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document != null && document.exists()) {
+                                     userNICK = document.getString("nickname");
+
+                                    } else {
+                                        // Firestore 문서가 없거나 null인 경우
+                                        Log.d(TAG, "문서 존재하지 않음");
+                                    }
+                                } else {
+                                    // 작업이 예외와 함께 실패한 경우
+                                    Exception exception = task.getException();
+                                    if (exception != null) {
+                                        Log.e(TAG, "문서 가져오기 오류", exception);
+                                    }
+                                }
+                            });
                     db.collection("storeContent").get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
@@ -212,26 +231,31 @@ public class PleaseMain_act extends AppCompatActivity
                                             String content = document.getString("content");
                                             long point = document.getLong("point");
 
+
+                                            if(!userNICK.equals(nickName)){
+                                                Marker marker = new Marker();
+                                                marker.setPosition(new LatLng(userLat, userLon));
+                                                marker.setMap(naverMap);
+                                                float distanceToMarker = location.distanceTo(new Location("Marker") {{
+                                                    setLatitude(userLat);
+                                                    setLongitude(userLon);
+                                                }});
+                                                data.put("distance", distanceToMarker);
+
+                                                // Update distance in Firestore
+                                                db.collection("storeContent").document(document.getId()).update(data);
+
+                                                // Handle click event
+                                                marker.setOnClickListener(overlay -> {
+                                                    showCustomModal("Marker information", nickName, distanceToMarker, userId, userTime, content, point);
+                                                    return true;
+                                                });
+                                            }
                                             // Add a marker for each document in the "storeContent" collection
-                                            Marker marker = new Marker();
-                                            marker.setPosition(new LatLng(userLat, userLon));
-                                            marker.setMap(naverMap);
+
 
                                             // Calculate distance to each marker
-                                            float distanceToMarker = location.distanceTo(new Location("Marker") {{
-                                                setLatitude(userLat);
-                                                setLongitude(userLon);
-                                            }});
-                                            data.put("distance", distanceToMarker);
 
-                                            // Update distance in Firestore
-                                            db.collection("storeContent").document(document.getId()).update(data);
-
-                                            // Handle click event
-                                            marker.setOnClickListener(overlay -> {
-                                                showCustomModal("Marker information", nickName, distanceToMarker, userId, userTime, content, point);
-                                                return true;
-                                            });
                                         } else {
                                             // If the Firestore document does not exist
                                             Log.d(TAG, "Document does not exist");
