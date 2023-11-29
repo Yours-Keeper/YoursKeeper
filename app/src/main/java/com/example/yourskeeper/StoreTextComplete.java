@@ -39,10 +39,17 @@ public class StoreTextComplete extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        Button completePleaseButton = findViewById(R.id.complete_please_Btn);
         Button changeButton = findViewById(R.id.change_btn);
         Button deleteButton = findViewById(R.id.delete_btn);
         ImageView mainPageBtnMenu = findViewById(R.id.mainPage_btnMenu);
 
+        completePleaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goPleaseMain();
+            }
+        });
         changeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,6 +68,12 @@ public class StoreTextComplete extends AppCompatActivity {
             @Override
             public void onClick(View v) { showMenuPopup(v); }
         });
+    }
+
+    private void goPleaseMain(){
+        Intent intent = new Intent(this, PleaseMain_act.class);
+        startActivity(intent);
+        finish();
     }
     // 수정을 누르면 일단 db에서 지우고
     private void deleteToChange(){
