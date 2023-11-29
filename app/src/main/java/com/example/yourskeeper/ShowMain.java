@@ -23,7 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Map;
 
 public class ShowMain extends AppCompatActivity {
-    // 로그아웃하지 않고 firestore에서 db만 삭제한 경우 Authentication에는 데이터가 있기 때문에 로그인 된 걸로 생각 돼서 앱이 실행 안 될 수 있음
+    // 로그아웃하지 않고 firebase에서 db만 삭제한 경우 앱이 로그인 정보를 저장 해놔서 앱이 실행 안 될 수 있음
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -56,7 +56,6 @@ public class ShowMain extends AppCompatActivity {
             public void onAnimationEnd(Animation animation) {
                 // 애니메이션이 끝날 때 수행할 작업
                 Log.d("JHJ", "onAnimationEnd: ");
-                checkStore();
                 checkDB();
             }
 
@@ -70,51 +69,50 @@ public class ShowMain extends AppCompatActivity {
         textView.startAnimation(mainAnim);
     }
 
-    private void checkStore(){
+    private void checkDB(){
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        String userId = currentUser.getUid();
 
-        DocumentReference docRef = db.collection("storeContent").document(userId);
+        // 로그인 닉네임 맡아줄게요 이 세개를 고려 해야 하는데
+        // 맡아줄게요 글이 있으면 로그인 닉네임은 무조건 존재
+        // 닉네임이 있을 때 로그인은 돼있을 수도 안 돼있을 수도 있고 맡아줄게요도 있을 수도 없을 수도
+        // 로그인이 돼있을 때 닉네임 있을 수도 없을 수도 맡아줄게요 있을 수도 없을 수도
 
-        docRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    // A 함수 실행
-                    goStoreTextComplete();
+        // 1. 로그인 돼있고 맡아줄게요에 쓴 글이 있으면 goStoreTextComplete
+        // 2. 로그인이 돼있는데 닉네임이 없으면 goNickname
+        // 3. 로그인 돼있고 닉네임도 있으면 goMainPage
+        // 4. 로그인이 안돼있으면 goMainActivity
+
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+
+            DocumentReference docRef = db.collection("storeContent").document(userId);
+
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        goStoreTextComplete();
+                    } else {
+                        checkNickname(currentUser);
+                    }
                 } else {
-                    // 해당 문서가 존재하지 않을 때의 처리
-                    // 여기에 원하는 로직을 추가하세요
+                    // 작업이 실패한 경우의 처리
+                    Exception exception = task.getException();
+                    if (exception != null) {
+                        // 에러 로그 출력 또는 다른 처리
+                    }
                 }
-            } else {
-                // 작업이 실패한 경우의 처리
-                Exception exception = task.getException();
-                if (exception != null) {
-                    // 에러 로그 출력 또는 다른 처리
-                }
-            }
-        });
+            });
+        }
+        else {
+            goMainActivity();
+        }
     }
     private void goStoreTextComplete(){
         Intent intent = new Intent(this, StoreTextComplete.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
-    }
-    private void checkDB(){
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        // 1. 로그인이 안돼있으면 goMainActivity
-        // 2. 로그인이 돼있는데 닉네임이 없으면 goNickname
-        // 3. 로그인 돼있고 닉네임도 있으면 goMainPage
-
-        if (currentUser != null) {
-            Log.d("JHJ", "if currentUser != null");
-            checkNickname(currentUser);
-        } else {
-            Log.d("JHJ", "else : ");
-            goMainActivity();
-        }
     }
 
     private void checkNickname(FirebaseUser user){
