@@ -12,7 +12,6 @@
         android:id="@+id/btnBack"
         android:layout_width="50dp"
         android:layout_height="50dp"
-
         android:src="@drawable/back"
         android:contentDescription="뒤로가기"
         android:layout_gravity="start"
@@ -23,7 +22,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="내 근처의 Keeper"
         android:textSize="20dp"
         android:textStyle="bold"
         android:textColor="@color/black" />

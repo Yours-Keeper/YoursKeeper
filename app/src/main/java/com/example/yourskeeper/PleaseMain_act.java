@@ -126,7 +126,8 @@ public class PleaseMain_act extends AppCompatActivity
         // Firebase Firestore 객체 초기화
         db = FirebaseFirestore.getInstance();
         FloatingActionButton goPleaseListButton = findViewById(R.id.fabMenu);
-        // ...
+        TextView textTitle = findViewById(R.id.toolbar_Titie);
+        textTitle.setText("내 근처의 Keeper");
         goPleaseListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
