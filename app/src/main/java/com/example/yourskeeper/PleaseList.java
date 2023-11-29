@@ -37,6 +37,9 @@ public class PleaseList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_please_list);
 
+        TextView textTitle = findViewById(R.id.toolbar_Titie);
+        textTitle.setText("내 근처의 Keeper");
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setContentInsetsAbsolute(0, 0);
 
