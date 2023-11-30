@@ -320,6 +320,13 @@ public class PleaseMain_act extends AppCompatActivity
         Button chatBtn = dialog.findViewById(R.id.list_detail_Btn);
         if(chat.equals("내 채팅 목록으로 가기")){
             chatBtn.setText(chat);
+            chatBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goChatList();
+                    finish();
+                }
+            });
         }
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -366,6 +373,10 @@ public class PleaseMain_act extends AppCompatActivity
 
     private void goPleaseList() {
         Intent intent = new Intent(this, PleaseList.class);
+        startActivity(intent);
+    }
+    private void goChatList() {
+        Intent intent = new Intent(this, ChatingList_act.class);
         startActivity(intent);
     }
     private void showMenuPopup(View anchorView) {
