@@ -186,6 +186,7 @@ public class PleaseList extends AppCompatActivity {
     private void goPleaseMain() {
         Intent intent = new Intent(this, PleaseMain_act.class);
         startActivity(intent);
+        finish();
     }
     private void showMenuPopup(View anchorView) {
         View popupView = LayoutInflater.from(this).inflate(R.layout.menu, null);
