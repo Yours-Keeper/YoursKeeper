@@ -1,6 +1,8 @@
 package com.example.yourskeeper;
 
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -111,7 +113,7 @@ public class PleaseList extends AppCompatActivity {
                             Store store = document.toObject(Store.class);
 
                             // 사용자 지정 다이얼로그 표시
-                            showCustomModal( store.getContent());
+                            showCustomModal( store.getContent(), store.getNickname());
                         }
                     }
                 });
@@ -125,13 +127,51 @@ public class PleaseList extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void showCustomModal(String content) {
+    private void showCustomModal(String content, String chat) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.list_detail);
-
         content = content.replace("\\n", "\n");
         TextView textContent= dialog.findViewById(R.id.list_detail_content);
         textContent.setText(content);
+        Button chatBtn = dialog.findViewById(R.id.list_detail_Btn);
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            DocumentReference userDocRef = db.collection("users").document(userId);
+
+            userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // 사용자 데이터 가져오기 및 TextView에 값 설정
+                            String nicknames = document.getString("nickname");
+
+
+                            if (nicknames.equals(chat) ) {
+                               chatBtn.setText("내 채팅 목록으로 가기");
+                            }
+                        } else {
+                            Log.d(ConstraintLayoutStates.TAG, "문서가 존재하지 않습니다.");
+                        }
+                    } else {
+                        Log.d(ConstraintLayoutStates.TAG, "데이터 가져오기 실패: ", task.getException());
+                    }
+                }
+            });
+        }
+        if(chat.equals("내 채팅 목록으로 가기")){
+            chatBtn.setText(chat);
+            chatBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goChatList();
+                    finish();
+                }
+            });
+        }
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -271,6 +311,10 @@ public class PleaseList extends AppCompatActivity {
                 signOut();
             }
         });
+    }
+    private void goChatList() {
+        Intent intent = new Intent(this, ChatingList_act.class);
+        startActivity(intent);
     }
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
