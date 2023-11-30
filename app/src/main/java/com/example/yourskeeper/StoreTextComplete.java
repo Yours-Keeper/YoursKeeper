@@ -73,7 +73,7 @@ public class StoreTextComplete extends AppCompatActivity {
     private void goPleaseMain(){
         Intent intent = new Intent(this, PleaseMain_act.class);
         startActivity(intent);
-        finish();
+
     }
     // 수정을 누르면 일단 db에서 지우고
     private void deleteToChange(){

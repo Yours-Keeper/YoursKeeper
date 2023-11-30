@@ -25,7 +25,7 @@
             android:gravity="start"
             android:text="도라에몽"
             android:textColor="@color/black"
-            android:textSize="16dp"
+            android:textSize="18dp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:text="신뢰도"
                 android:textColor="#D9D9D9"
-                android:textSize="8dp"
+                android:textSize="12dp"
                 android:layout_gravity="end" />
 
             <TextView
@@ -47,6 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="46점"
+                android:textSize="15dp"
                 android:textColor="@color/black" />
         </LinearLayout>
 
@@ -72,13 +73,13 @@
                 android:layout_height="wrap_content"
                 android:text="가능시간"
                 android:textColor="#D9D9D9"
-                android:textSize="8dp" />
+                android:textSize="12dp" />
 
             <TextView
                 android:id="@+id/modalTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:textSize="15dp"
                 android:text="16:00 ~ 18:30"
                 android:textColor="@color/black" />
         </LinearLayout>
@@ -94,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:text="거리"
                 android:textColor="#D9D9D9"
-                android:textSize="8dp"
+                android:textSize="12dp"
                 android:layout_gravity="end" />
 
             <TextView
@@ -102,6 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:textSize="15dp"
                 android:text="300m"
                 android:textColor="@color/black" />
         </LinearLayout>
