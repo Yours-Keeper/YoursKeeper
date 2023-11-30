@@ -99,8 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                         if (task.isSuccessful()) {
                                             // Sign in success, update UI with the signed-in user's information
                                             Log.d(TAG, "signInWithCredential:success");
-                                            FirebaseUser user = mAuth.getCurrentUser();
-                                            checkNickname(user);
+                                            checkDB();
                                         } else {
                                             // If sign in fails, display a message to the user.
                                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -144,6 +143,30 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void checkDB(){
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String userId = currentUser.getUid();
+
+        DocumentReference docRef = db.collection("storeContent").document(userId);
+
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    goStoreTextComplete();
+                } else {
+                    checkNickname(currentUser);
+                }
+            } else {
+                // 작업이 실패한 경우의 처리
+                Exception exception = task.getException();
+                if (exception != null)
+                    {// 에러 로그 출력 또는 다른 처리
+                    }
+            }
+        });
+    }
+
     private void checkNickname(FirebaseUser user){
         String userId = user.getUid();
         DocumentReference docRef = db.collection("users").document(userId);
@@ -185,6 +208,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void goMainPage(){
         Intent intent = new Intent(this, MainPageActivity.class);
+        startActivity(intent);
+        finish();
+    }
+    private void goStoreTextComplete(){
+        Intent intent = new Intent(this, StoreTextComplete.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
