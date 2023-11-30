@@ -120,7 +120,7 @@ public class PleaseMain_act extends AppCompatActivity
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+               finish();
             }
         });
 
@@ -247,6 +247,7 @@ public class PleaseMain_act extends AppCompatActivity
         });
     }
 
+
     private void showCustomModal(String title, String nickname, float distance, String userId, String userTime, String content, long point) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
@@ -343,11 +344,8 @@ public class PleaseMain_act extends AppCompatActivity
     }
 
     private void goPleaseList() {
-
         Intent intent = new Intent(this, PleaseList.class);
         startActivity(intent);
-
-
     }
     private void showMenuPopup(View anchorView) {
         View popupView = LayoutInflater.from(this).inflate(R.layout.menu, null);
