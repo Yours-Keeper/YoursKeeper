@@ -16,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -28,10 +27,8 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.Button;
 
 import androidx.appcompat.widget.Toolbar;
@@ -68,6 +65,9 @@ public class PleaseMain_act extends AppCompatActivity
     private FirebaseFirestore db;  // Firebase Firestore 객체
     private FusedLocationSource locationSource;
     private NaverMap mNaverMap;
+
+    private String nickNAME;
+    private String chat;
     private double lat, lon;
     private AlertDialog customDialog;
 
@@ -175,6 +175,25 @@ public class PleaseMain_act extends AppCompatActivity
                 circle.setMap(mNaverMap);
 
                 if (userId != null) {
+                    db.collection("users").document(userId).get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document != null && document.exists()) {
+                                        nickNAME = document.getString("nickname");
+
+                                    } else {
+                                        // Firestore 문서가 없거나 null인 경우
+                                        Log.d(TAG, "문서 존재하지 않음");
+                                    }
+                                } else {
+                                    // 작업이 예외와 함께 실패한 경우
+                                    Exception exception = task.getException();
+                                    if (exception != null) {
+                                        Log.e(TAG, "문서 가져오기 오류", exception);
+                                    }
+                                }
+                            });
 
                     db.collection("storeContent").get()
                             .addOnCompleteListener(task -> {
@@ -190,23 +209,34 @@ public class PleaseMain_act extends AppCompatActivity
 
                                             // 닉네임이 userNICK과 같지 않은 경우에만 마커 추가
 
-                                                Marker marker = new Marker();
-                                                marker.setPosition(new LatLng(userLat, userLon));
-                                                marker.setMap(naverMap);
-                                                float distanceToMarker = location.distanceTo(new Location("Marker") {{
-                                                    setLatitude(userLat);
-                                                    setLongitude(userLon);
-                                                }});
-                                                data.put("distance", distanceToMarker);
 
-                                                // Firestore에서 거리 업데이트
-                                                db.collection("storeContent").document(document.getId()).update(data);
+
+
+                                                Marker marker = new Marker();
+                                            marker.setPosition(new LatLng(userLat, userLon));
+                                            marker.setMap(naverMap);
+                                            float distanceToMarker = location.distanceTo(new Location("Marker") {{
+                                                setLatitude(userLat);
+                                                setLongitude(userLon);
+                                            }});
+                                            data.put("distance", distanceToMarker);
+
+                                            // Firestore에서 거리 업데이트
+                                            db.collection("storeContent").document(document.getId()).update(data);
+
+
+                                            marker.setOnClickListener(overlay -> {
+                                                if(nickName.equals(nickNAME)){
+                                                    chat = "내 채팅 목록으로 가기";
+                                                }else{
+                                                    chat="채팅하기";
+                                                }
+                                                showCustomModal("마커 정보", nickName, distanceToMarker, userId, userTime, content, point, chat);
+                                                return true;
+                                            });
 
                                                 // 클릭 이벤트 처리
-                                                marker.setOnClickListener(overlay -> {
-                                                    showCustomModal("마커 정보", nickName, distanceToMarker, userId, userTime, content, point);
-                                                    return true;
-                                                });
+
 
                                             // Add a marker for each document in the "storeContent" collection
 
@@ -234,7 +264,7 @@ public class PleaseMain_act extends AppCompatActivity
     }
 
 
-    private void showCustomModal(String title, String nickname, float distance, String userId, String userTime, String content, long point) {
+    private void showCustomModal(String title, String nickname, float distance, String userId, String userTime, String content, long point, String chat) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
         TextView textTitle = dialog.findViewById(R.id.modalTitle);
@@ -250,7 +280,7 @@ public class PleaseMain_act extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialog.dismiss(); // Close current dialog
-                showCustomListModal(content); // Deliver appropriate content
+                showCustomListModal(content, chat); // Deliver appropriate content
             }
         });
 
@@ -279,13 +309,18 @@ public class PleaseMain_act extends AppCompatActivity
         dialog.show();
     }
 
-    private void showCustomListModal(String content) {
+    private void showCustomListModal(String content, String chat) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.list_detail);
+
 
         content = content.replace("\\n", "\n");
         TextView textContent = dialog.findViewById(R.id.list_detail_content);
         textContent.setText(content);
+        Button chatBtn = dialog.findViewById(R.id.list_detail_Btn);
+        if(chat.equals("내 채팅 목록으로 가기")){
+            chatBtn.setText(chat);
+        }
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -425,4 +460,3 @@ public class PleaseMain_act extends AppCompatActivity
     }
 
 }
-
