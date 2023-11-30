@@ -154,8 +154,6 @@ public class PleaseMain_act extends AppCompatActivity
         naverMap.setMinZoom(14.0); // 원하는 값으로 조절 가능
         naverMap.setMaxZoom(17.0); // 원하는 값으로 조절 가능
         String userId = currentUser != null ? currentUser.getUid() : null;
-        CircleOverlay incircle = new CircleOverlay();
-        CircleOverlay outcircle = new CircleOverlay();
         // 권한 확인, 결과는 onRequestPermissionResult 콜백 메서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
 
@@ -164,29 +162,17 @@ public class PleaseMain_act extends AppCompatActivity
             public void onLocationChange(@NonNull Location location) {
                 lat = location.getLatitude();
                 lon = location.getLongitude();
-                incircle.setOutlineWidth(7);
-                incircle.setOutlineColor(Color.YELLOW);
-                incircle.setCenter(new LatLng(lat, lon));
-                incircle.setRadius(100);
-                incircle.setMap(mNaverMap);
-                incircle.setColor(Color.argb(0, 0, 0, 0));
 
-                outcircle.setOutlineWidth(7);
-                outcircle.setOutlineColor(Color.YELLOW);
-                outcircle.setCenter(new LatLng(lat, lon));
-                outcircle.setRadius(200);
-                outcircle.setMap(mNaverMap);
-                outcircle.setColor(Color.argb(0, 0, 0, 0));
                 Map<String, Object> data = new HashMap<>();
+                CircleOverlay circle = new CircleOverlay();
+                circle.setCenter(new LatLng(lat, lon));
+                circle.setRadius(0); // 원의 반지름을 미터로 설정하십시오. 필요에 따라 조절하십시오
 
-                Marker myLocationMarker = new Marker();
-                myLocationMarker.setPosition(new LatLng(lat, lon));
-                myLocationMarker.setIconTintColor(Color.parseColor("#FFFF00")); // 노란색 틴트
-                myLocationMarker.setWidth(50);
-                myLocationMarker.setHeight(50);
-                myLocationMarker.setMap(mNaverMap);
-                mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
+// 위치 추적 모드를 NoFollow로 설정합니다
+                mNaverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
 
+// 원을 지도에 추가합니다
+                circle.setMap(mNaverMap);
 
                 if (userId != null) {
 
