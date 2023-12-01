@@ -178,7 +178,7 @@ public class Chatting extends AppCompatActivity {
         CollectionReference chats = db.collection("chats");
         Map<String, Object> data = new HashMap<>();
         String text = chatText.getText().toString();
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(); //시간표시
         String time = calendar.get(Calendar.HOUR_OF_DAY) + ":"+calendar.get(Calendar.MINUTE);
         DocumentReference userdocRef = db.collection("users").document(userId);
         userdocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
