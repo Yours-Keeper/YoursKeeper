@@ -13,10 +13,11 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     private final TextView mNameField;
     private final TextView mTextField;
 
+
     public ChatHolder(@NonNull View itemView) {
         super(itemView);
-        mNameField = itemView.findViewById(android.R.id.text1);
-        mTextField = itemView.findViewById(android.R.id.text2);
+        mNameField = itemView.findViewById(R.id.message_nickname);  //닉네임 텍스트뷰의 레이아웃을 정하는 문장
+        mTextField = itemView.findViewById(R.id.message_text);  //메세지 내용 텍스트뷰의 레이아웃을 정하는 문장
     }
 
     public void bind(@NonNull Chat chat) {
@@ -31,5 +32,4 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     private void setMessage(@Nullable String text) {
         mTextField.setText(text);
     }
-
 }
