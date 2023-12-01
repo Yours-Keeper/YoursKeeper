@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -197,6 +198,7 @@ public class Chatting extends AppCompatActivity {
                         data.put("timestamp", FieldValue.serverTimestamp());
                         //chats.document("MSG_").set(data);
                         chats.document("MSG_"+ System.currentTimeMillis()).set(data);
+
                         // 가져온 데이터로 작업 수행
                     } else {
                         // 문서가 존재하지 않음
@@ -206,6 +208,14 @@ public class Chatting extends AppCompatActivity {
                 }
             }
         });
+
+        EditText et = findViewById(R.id.chat_text);
+        et.setText("");  //입력란 초기화
+        int itemCount = adapter.getItemCount();
+        if (itemCount > 0) {
+            RecyclerView recyclerView = findViewById(R.id.recycler_view);
+            recyclerView.scrollToPosition(itemCount - 1);
+        } //리사이클러뷰 가장 밑으로
 
 //        DocumentReference chatsdocRef = db.collection("chats").document(userId);
 //        chatsdocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -230,6 +240,11 @@ public class Chatting extends AppCompatActivity {
 //            }
 //        });
 
+
+//        Intent intent = new Intent(this, PleaseMain_act.class);
+//        intent.putExtra("USER_ID", userId);
+//        startActivity(intent);
+
 //        Intent intent = getIntent();
 //        String userId = intent.getStringExtra("USER_ID");
 
@@ -238,7 +253,5 @@ public class Chatting extends AppCompatActivity {
 //        data.put("timestamp", FieldValue.serverTimestamp());
 //        chats.document("MSG_"+ System.currentTimeMillis()).set(data);
     }
-
-
 
 }

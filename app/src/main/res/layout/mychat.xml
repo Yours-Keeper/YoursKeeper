@@ -14,7 +14,8 @@
         android:text="도라에몽" />
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
         <TextView
             android:id="@+id/message_time"
             android:layout_width="wrap_content"
@@ -28,7 +29,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="10dp"
             android:paddingVertical="3dp"
-            android:background="#9BFFA0"
+            android:background="@drawable/chat_rounded_mine"
             android:textSize="17dp"
             android:text="뭐시여"/>
 
