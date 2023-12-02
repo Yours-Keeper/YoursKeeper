@@ -38,8 +38,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PleaseList extends AppCompatActivity {
     private FirebaseAuth mAuth;  // Firebase 인증 객체
@@ -113,7 +119,7 @@ public class PleaseList extends AppCompatActivity {
                             Store store = document.toObject(Store.class);
 
                             // 사용자 지정 다이얼로그 표시
-                            showCustomModal( store.getContent(), store.getNickname());
+                            showCustomModal( store.getContent(), store.getNickname(), store.getUid());
                         }
                     }
                 });
@@ -127,7 +133,7 @@ public class PleaseList extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void showCustomModal(String content, String chat) {
+    private void showCustomModal(String content, String chat, String uid) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.list_detail);
         content = content.replace("\\n", "\n");
@@ -163,7 +169,7 @@ public class PleaseList extends AppCompatActivity {
             });
         }
         if(chat.equals("내 채팅 목록으로 가기")){
-            chatBtn.setText(chat);
+            chatBtn.setText(chat); //왜있는 문장이지?
             chatBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -172,6 +178,14 @@ public class PleaseList extends AppCompatActivity {
                 }
             });
         }
+
+        chatBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createChatRoom(uid, chat);
+            }
+        });
+
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -312,10 +326,103 @@ public class PleaseList extends AppCompatActivity {
             }
         });
     }
+
+    private void createChatRoom(String opponentUid, String opponentNickname) {
+        // Get the current user's ID
+        String currentUserUid = mAuth.getCurrentUser().getUid();
+
+        // Query to check for an existing chat room between the current user and the opponent
+        Query query = db.collection("chattingRoom")
+                .whereEqualTo("createdBy", currentUserUid)
+                .whereEqualTo("createdFor", opponentUid);
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    // Chat room already exists between these users
+                    DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0); // Assuming only one chat room for simplicity
+
+                    // Get the existing chat room ID and redirect to the chat room
+                    String chatRoomId = documentSnapshot.getId();
+                    goToChatRoom(chatRoomId);
+                } else {
+                    // Create a new chat room if it doesn't exist
+                    Calendar calendar = Calendar.getInstance(); //시간표시
+                    String time = calendar.get(Calendar.HOUR_OF_DAY) + ":"+calendar.get(Calendar.MINUTE);
+
+
+                    Map<String, Object> roomData = new HashMap<>();
+                    roomData.put("name", opponentNickname);
+                    roomData.put("time", time);
+                    roomData.put("createdBy", currentUserUid);
+                    roomData.put("createdFor", opponentUid);
+                    roomData.put("createdAt", FieldValue.serverTimestamp());
+
+                    db.collection("chattingRoom")
+                            .add(roomData)
+                            .addOnSuccessListener(documentReference -> {
+                                // New chat room created successfully
+                                Log.d(TAG, "Chat room created with ID: " + documentReference.getId());
+
+                                // Redirect to the chat room with the created room ID
+                                goToChatRoom(documentReference.getId());
+                            })
+                            .addOnFailureListener(e -> {
+                                // Failed to create chat room
+                                Log.e(TAG, "Error creating chat room", e);
+                                // Handle failure if necessary
+                            });
+                }
+            } else {
+                Log.e(TAG, "Error getting documents: ", task.getException());
+                // Handle error if necessary
+            }
+        });
+    }
+
+
+//    private void createChatRoom(String opponentUid) {
+//        // Get a reference to the Firestore collection "chattingRoom"
+//        CollectionReference chattingRooms = db.collection("chattingRoom");
+//
+//        // Create a new document in the "chattingRoom" collection with a unique ID
+//        Map<String, Object> roomData = new HashMap<>();
+//        roomData.put("createdBy", mAuth.getCurrentUser().getUid());
+//        roomData.put("createdFor", opponentUid);
+//        roomData.put("createdAt", FieldValue.serverTimestamp());
+//
+//        chattingRooms.add(roomData)
+//                .addOnSuccessListener(documentReference -> {
+//                    // New chat room created successfully
+//                    Log.d(TAG, "Chat room created with ID: " + documentReference.getId());
+//
+//                    // Redirect to the chat room with the created room ID
+//                    goToChatRoom(documentReference.getId());
+//                })
+//                .addOnFailureListener(e -> {
+//                    // Failed to create chat room
+//                    Log.e(TAG, "Error creating chat room", e);
+//                    // Handle failure if necessary
+//                });
+//    }
+
     private void goChatList() {
-        Intent intent = new Intent(this, ChatingList_act.class);
+        Intent intent = new Intent(this, ChattingListActivity.class);
         startActivity(intent);
     }
+
+    private void goChatting() {
+        Intent intent = new Intent(this, ChatActivity.class);
+        startActivity(intent);
+    }
+
+    private void goToChatRoom(String roomId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
+        startActivity(intent);
+    }
+
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, MainActivity.class);

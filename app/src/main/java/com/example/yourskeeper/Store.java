@@ -17,7 +17,7 @@ public class Store {
 
     public Store() { } // Needed for Firebase
 
-    public Store(String nickname, String time,String uid, Float distance, Integer point, String content) {
+    public Store(String nickname, String time, String uid, Float distance, Integer point, String content) {
         mNickname = nickname;
         mPoint = point;
         mTime = time;
@@ -27,22 +27,24 @@ public class Store {
     }
 
     public String getNickname() { return mNickname; }
-
     public void setNickname(String nickname) { mNickname = nickname; }
+
     public String getContent() { return mContent; }
-
     public void setContent(String content) { mContent = content; }
+
     public String getTime() { return mTime; }
-    public Float getDistance() {return mDistance;}
     public void setTime(String time) { mTime = time; }
+
+    public String getUid() { return mUid; }
+    public void setUid(String uid) { mUid = uid; }
+
+    public Float getDistance() {return mDistance;}
     public void setDistance(Float distance) {mDistance = distance;}
+
     public Integer getPoint() {return mPoint;};
-
     public void setPoint(Integer point) {mPoint = point;}
-
 
     @ServerTimestamp
     public Timestamp getTimestamp() { return mTimestamp; }
-
     public void setTimestamp(Timestamp timestamp) { mTimestamp = timestamp; }
 }
