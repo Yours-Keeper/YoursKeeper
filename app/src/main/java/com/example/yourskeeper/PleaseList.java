@@ -386,8 +386,6 @@ public class PleaseList extends AppCompatActivity {
     }
 
 
-
-
 //    private void createChatRoom(String opponentUid, String opponentNickname) {
 //        // Get the current user's ID
 //        String currentUserUid = mAuth.getCurrentUser().getUid();
@@ -442,31 +440,6 @@ public class PleaseList extends AppCompatActivity {
 //        });
 //    }
 
-
-//    private void createChatRoom(String opponentUid) {
-//        // Get a reference to the Firestore collection "chattingRoom"
-//        CollectionReference chattingRooms = db.collection("chattingRoom");
-//
-//        // Create a new document in the "chattingRoom" collection with a unique ID
-//        Map<String, Object> roomData = new HashMap<>();
-//        roomData.put("createdBy", mAuth.getCurrentUser().getUid());
-//        roomData.put("createdFor", opponentUid);
-//        roomData.put("createdAt", FieldValue.serverTimestamp());
-//
-//        chattingRooms.add(roomData)
-//                .addOnSuccessListener(documentReference -> {
-//                    // New chat room created successfully
-//                    Log.d(TAG, "Chat room created with ID: " + documentReference.getId());
-//
-//                    // Redirect to the chat room with the created room ID
-//                    goToChatRoom(documentReference.getId());
-//                })
-//                .addOnFailureListener(e -> {
-//                    // Failed to create chat room
-//                    Log.e(TAG, "Error creating chat room", e);
-//                    // Handle failure if necessary
-//                });
-//    }
 
     private void goChatList() {
         Intent intent = new Intent(this, ChattingListActivity.class);
