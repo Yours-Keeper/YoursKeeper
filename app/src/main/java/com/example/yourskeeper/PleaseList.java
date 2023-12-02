@@ -43,6 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -327,85 +328,118 @@ public class PleaseList extends AppCompatActivity {
         });
     }
 
+
+
+
     private void createChatRoom(String opponentUid, String opponentNickname) {
-        // Get the current user's ID
         String currentUserUid = mAuth.getCurrentUser().getUid();
 
-        // Query to check for an existing chat room between the current user and the opponent
-        Query query = db.collection("chattingRoom")
-                .whereEqualTo("createdBy", currentUserUid)
-                .whereEqualTo("createdFor", opponentUid);
+        // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
+        String[] userIds = {currentUserUid, opponentUid};
+        Arrays.sort(userIds);
 
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    // Chat room already exists between these users
-                    DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0); // Assuming only one chat room for simplicity
+        String chatRoomId = userIds[0] + "_" + userIds[1]; // Unique chat room ID
 
-                    // Get the existing chat room ID and redirect to the chat room
-                    String chatRoomId = documentSnapshot.getId();
-                    goToChatRoom(chatRoomId);
-                } else {
-                    // Create a new chat room if it doesn't exist
-                    Calendar calendar = Calendar.getInstance(); //시간표시
-                    String time = calendar.get(Calendar.HOUR_OF_DAY) + ":"+calendar.get(Calendar.MINUTE);
+        // Check if the chat room already exists
+        db.collection("chattingRoom")
+                .document(chatRoomId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot documentSnapshot = task.getResult();
+                        if (documentSnapshot.exists()) {
+                            // Chat room already exists between these users
+                            goToChatRoom(chatRoomId);
+                        } else {
+                            // Create a new chat room if it doesn't exist
+                            Calendar calendar = Calendar.getInstance();
+                            String time = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
 
+                            Map<String, Object> roomData = new HashMap<>();
+                            roomData.put("name", opponentNickname);
+                            roomData.put("time", time);
+                            roomData.put("createdBy", currentUserUid);
+                            roomData.put("createdFor", opponentUid);
+                            roomData.put("createdAt", FieldValue.serverTimestamp());
 
-                    Map<String, Object> roomData = new HashMap<>();
-                    roomData.put("name", opponentNickname);
-                    roomData.put("time", time);
-                    roomData.put("createdBy", currentUserUid);
-                    roomData.put("createdFor", opponentUid);
-                    roomData.put("createdAt", FieldValue.serverTimestamp());
+                            db.collection("chattingRoom")
+                                    .document(chatRoomId)
+                                    .set(roomData)
+                                    .addOnSuccessListener(aVoid -> {
+                                        // New chat room created successfully
+                                        Log.d(TAG, "Chat room created with ID: " + chatRoomId);
 
-                    db.collection("chattingRoom")
-                            .add(roomData)
-                            .addOnSuccessListener(documentReference -> {
-                                // New chat room created successfully
-                                Log.d(TAG, "Chat room created with ID: " + documentReference.getId());
-
-                                // Redirect to the chat room with the created room ID
-                                goToChatRoom(documentReference.getId());
-                            })
-                            .addOnFailureListener(e -> {
-                                // Failed to create chat room
-                                Log.e(TAG, "Error creating chat room", e);
-                                // Handle failure if necessary
-                            });
-                }
-            } else {
-                Log.e(TAG, "Error getting documents: ", task.getException());
-                // Handle error if necessary
-            }
-        });
+                                        // Redirect to the chat room with the created room ID
+                                        goToChatRoom(chatRoomId);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        // Failed to create chat room
+                                        Log.e(TAG, "Error creating chat room", e);
+                                        // Handle failure if necessary
+                                    });
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting chat room document", task.getException());
+                        // Handle error if necessary
+                    }
+                });
     }
 
 
-//    private void createChatRoom(String opponentUid) {
-//        // Get a reference to the Firestore collection "chattingRoom"
-//        CollectionReference chattingRooms = db.collection("chattingRoom");
+//    private void createChatRoom(String opponentUid, String opponentNickname) {
+//        // Get the current user's ID
+//        String currentUserUid = mAuth.getCurrentUser().getUid();
 //
-//        // Create a new document in the "chattingRoom" collection with a unique ID
-//        Map<String, Object> roomData = new HashMap<>();
-//        roomData.put("createdBy", mAuth.getCurrentUser().getUid());
-//        roomData.put("createdFor", opponentUid);
-//        roomData.put("createdAt", FieldValue.serverTimestamp());
+//        // Query to check for an existing chat room between the current user and the opponent
+//        Query query = db.collection("chattingRoom")
+//                .whereEqualTo("createdBy", currentUserUid)
+//                .whereEqualTo("createdFor", opponentUid);
 //
-//        chattingRooms.add(roomData)
-//                .addOnSuccessListener(documentReference -> {
-//                    // New chat room created successfully
-//                    Log.d(TAG, "Chat room created with ID: " + documentReference.getId());
+//        query.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                QuerySnapshot querySnapshot = task.getResult();
+//                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+//                    // Chat room already exists between these users
+//                    DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0); // Assuming only one chat room for simplicity
 //
-//                    // Redirect to the chat room with the created room ID
-//                    goToChatRoom(documentReference.getId());
-//                })
-//                .addOnFailureListener(e -> {
-//                    // Failed to create chat room
-//                    Log.e(TAG, "Error creating chat room", e);
-//                    // Handle failure if necessary
-//                });
+//                    // Get the existing chat room ID and redirect to the chat room
+//                    String chatRoomId = documentSnapshot.getId();
+//                    goToChatRoom(chatRoomId);
+//                } else {
+//                    // Create a new chat room if it doesn't exist
+//                    Calendar calendar = Calendar.getInstance(); //시간표시
+//                    String time = calendar.get(Calendar.HOUR_OF_DAY) + ":"+calendar.get(Calendar.MINUTE);
+//
+//
+//                    Map<String, Object> roomData = new HashMap<>();
+//                    roomData.put("name", opponentNickname);
+//                    roomData.put("time", time);
+//                    roomData.put("createdBy", currentUserUid);
+//                    roomData.put("createdFor", opponentUid);
+//                    roomData.put("createdAt", FieldValue.serverTimestamp());
+//
+//                    db.collection("chattingRoom")
+//                            .add(roomData)
+//                            .addOnSuccessListener(documentReference -> {
+//                                // New chat room created successfully
+//                                Log.d(TAG, "Chat room created with ID: " + documentReference.getId());
+//
+//                                // Redirect to the chat room with the created room ID
+//                                goToChatRoom(documentReference.getId());
+//                            })
+//                            .addOnFailureListener(e -> {
+//                                // Failed to create chat room
+//                                Log.e(TAG, "Error creating chat room", e);
+//                                // Handle failure if necessary
+//                            });
+//                }
+//            } else {
+//                Log.e(TAG, "Error getting documents: ", task.getException());
+//                // Handle error if necessary
+//            }
+//        });
 //    }
+
 
     private void goChatList() {
         Intent intent = new Intent(this, ChattingListActivity.class);
