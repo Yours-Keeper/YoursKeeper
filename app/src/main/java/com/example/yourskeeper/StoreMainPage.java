@@ -143,6 +143,7 @@ public class StoreMainPage extends AppCompatActivity {
                         data.put("lat", lat);
                         data.put("lon", lon);
                         data.put("point", 80);
+                        data.put("uid", userId);
                         // Firestore에 데이터 저장
                         db.collection("storeContent").document(userId).set(data);
                         goStoreTextComplete();

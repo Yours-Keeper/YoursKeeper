@@ -376,7 +376,7 @@ public class PleaseMain_act extends AppCompatActivity
         startActivity(intent);
     }
     private void goChatList() {
-        Intent intent = new Intent(this, ChatingList_act.class);
+        Intent intent = new Intent(this, ChattingListActivity.class);
         startActivity(intent);
     }
     private void showMenuPopup(View anchorView) {

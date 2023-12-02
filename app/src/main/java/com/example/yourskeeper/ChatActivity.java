@@ -1,16 +1,12 @@
 package com.example.yourskeeper;
 
-import static androidx.constraintlayout.widget.ConstraintLayoutStates.TAG;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,24 +17,19 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
-public class Chatting extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
 
     private FirestoreRecyclerAdapter adapter;
     private FirebaseFirestore db;
@@ -58,11 +49,16 @@ public class Chatting extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         String userId = currentUser.getUid();
 
+        Intent intent = getIntent();
+        String roomId = intent.getStringExtra("ROOM_ID");
+
         ImageButton sendButton = findViewById(R.id.send_Btn);
 
         setTitle("Using FirestoreRecyclerAdapter");
 
         Query query = FirebaseFirestore.getInstance()
+                .collection("chattingRoom")
+                .document(roomId)
                 .collection("chats")
                 .orderBy("timestamp")
                 .limit(50);
@@ -86,7 +82,7 @@ public class Chatting extends AppCompatActivity {
             public int getItemViewType(int position) {
                 Chat chat = getItem(position);
                 if(chat != null && chat.getUid().equals(userId)) {
-                    //내가 쓴 글
+                    //내가 쓴 채팅
                     return TYPE_MY;
                 } else {
                     return TYPE_OTHER;
@@ -102,8 +98,8 @@ public class Chatting extends AppCompatActivity {
                 //두번째 파라미터 int viewType을 사용해서 분기처리 해보자
                 //타입은 낸 맘대로 정할 수 있음
                 View itemView = null;
-                if(viewType == TYPE_MY) itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.mychat,parent,false);
-                else itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat,parent,false);
+                if(viewType == TYPE_MY) itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.mychat, parent,false);
+                else itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat, parent,false);
 
                 //카톡 날짜 구분선도 이 타입으로 구분한것임
 
@@ -176,11 +172,15 @@ public class Chatting extends AppCompatActivity {
 //        String userName = currentUser.getDisplayName();
         EditText chatText = findViewById(R.id.chat_text);
 
-        CollectionReference chats = db.collection("chats");
-        Map<String, Object> data = new HashMap<>();
         String text = chatText.getText().toString();
         Calendar calendar = Calendar.getInstance(); //시간표시
         String time = calendar.get(Calendar.HOUR_OF_DAY) + ":"+calendar.get(Calendar.MINUTE);
+
+        Intent intent = getIntent();
+        String roomId = intent.getStringExtra("ROOM_ID");
+
+        Map<String, Object> data = new HashMap<>();
+
         DocumentReference userdocRef = db.collection("users").document(userId);
         userdocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -197,8 +197,12 @@ public class Chatting extends AppCompatActivity {
                         data.put("time", time);
                         data.put("timestamp", FieldValue.serverTimestamp());
                         //chats.document("MSG_").set(data);
-                        chats.document("MSG_"+ System.currentTimeMillis()).set(data);
+                        //chats.document("MSG_"+ System.currentTimeMillis()).set(data);
 
+                        db.collection("chattingRoom")
+                                .document(roomId)
+                                .collection("chats")
+                                .add(data);
                         // 가져온 데이터로 작업 수행
                     } else {
                         // 문서가 존재하지 않음
@@ -208,6 +212,41 @@ public class Chatting extends AppCompatActivity {
                 }
             }
         });
+
+//        CollectionReference chats = db.collection("chats");
+//        Map<String, Object> data = new HashMap<>();
+//
+//        String text = chatText.getText().toString();
+//        Calendar calendar = Calendar.getInstance(); //시간표시
+//        String time = calendar.get(Calendar.HOUR_OF_DAY) + ":"+calendar.get(Calendar.MINUTE);
+//
+//        DocumentReference userdocRef = db.collection("users").document(userId);
+//        userdocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document.exists()) {
+//                        // 문서(document)에서 필요한 데이터를 가져옴
+//                        String name = document.getString("nickname");
+//
+//                        data.put("name", name);
+//                        data.put("message", text);
+//                        data.put("uid", userId);
+//                        data.put("time", time);
+//                        data.put("timestamp", FieldValue.serverTimestamp());
+//                        //chats.document("MSG_").set(data);
+//                        chats.document("MSG_"+ System.currentTimeMillis()).set(data);
+//
+//                        // 가져온 데이터로 작업 수행
+//                    } else {
+//                        // 문서가 존재하지 않음
+//                    }
+//                } else {
+//                    // 데이터 가져오기 실패 시 처리
+//                }
+//            }
+//        });
 
         EditText et = findViewById(R.id.chat_text);
         et.setText("");  //입력란 초기화
@@ -246,7 +285,7 @@ public class Chatting extends AppCompatActivity {
 //        startActivity(intent);
 
 //        Intent intent = getIntent();
-//        String userId = intent.getStringExtra("USER_ID");
+//        String roomId = intent.getStringExtra("ROOM_ID");
 
 //        data.put("message", text);
 //        data.put("uid", userId);
