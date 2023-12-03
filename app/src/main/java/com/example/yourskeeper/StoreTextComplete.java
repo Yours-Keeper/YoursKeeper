@@ -153,6 +153,11 @@ public class StoreTextComplete extends AppCompatActivity {
         finish();
     }
 
+    private void goChattingList() {
+        Intent intent = new Intent(this, ChattingListActivity.class);
+        startActivity(intent);
+    }
+
     private void showMenuPopup(View anchorView) {
         View popupView = LayoutInflater.from(this).inflate(R.layout.menu, null);
         int width = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -164,6 +169,7 @@ public class StoreTextComplete extends AppCompatActivity {
         TextView nicknameTextView = popupView.findViewById(R.id.nickname);
         TextView reliabilityPointTextView = popupView.findViewById(R.id.reliability_point);
         TextView logoutTextView = popupView.findViewById(R.id.menu_signout);
+        TextView myChattingList = popupView.findViewById(R.id.my_chatting);
 
         // Firestore에서 사용자 데이터를 가져와 TextView에 값 설정
         FirebaseUser user = mAuth.getCurrentUser();
@@ -197,6 +203,13 @@ public class StoreTextComplete extends AppCompatActivity {
                 }
             });
         }
+
+        myChattingList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goChattingList();
+            }
+        });
 
         // logoutTextView에 대한 onClickListener 설정
         logoutTextView.setOnClickListener(new View.OnClickListener() {

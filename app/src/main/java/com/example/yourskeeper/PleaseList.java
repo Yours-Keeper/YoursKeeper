@@ -169,23 +169,38 @@ public class PleaseList extends AppCompatActivity {
                 }
             });
         }
-        if(chat.equals("내 채팅 목록으로 가기")){
-            chatBtn.setText(chat); //왜있는 문장이지?
-            chatBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    goChatList();
-                    finish();
-                }
-            });
-        }
 
         chatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createChatRoom(uid, chat);
+                String buttonText = chatBtn.getText().toString();
+                if (buttonText.equals("내 채팅 목록으로 가기")) {
+                    goChattingList();
+                    finish();
+                } else {
+                    // If the text is not "Go to my chat list", perform the createChatRoom method
+                    createChatRoom(uid, chat);
+                }
             }
         });
+
+//        if(chat.equals("내 채팅 목록으로 가기")){
+//            chatBtn.setText(chat); //왜있는 문장이지?
+//            chatBtn.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    goChattingList();
+//                    finish();
+//                }
+//            });
+//        }
+//
+//        chatBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                createChatRoom(uid, chat);
+//            }
+//        });
 
         // Firebase 사용자 정보(userId)를 사용하여 Firestore에서 사용자 정보 가져오기
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
@@ -253,6 +268,7 @@ public class PleaseList extends AppCompatActivity {
         TextView nicknameTextView = popupView.findViewById(R.id.nickname);
         TextView reliabilityPointTextView = popupView.findViewById(R.id.reliability_point);
         TextView logoutTextView = popupView.findViewById(R.id.menu_signout);
+        TextView myChattingList = popupView.findViewById(R.id.my_chatting);
 
         // Firestore에서 사용자 데이터를 가져와 TextView에 값 설정
         FirebaseUser user = mAuth.getCurrentUser();
@@ -286,6 +302,14 @@ public class PleaseList extends AppCompatActivity {
                 }
             });
         }
+
+        myChattingList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goChattingList();
+            }
+        });
+
 
         // logoutTextView에 대한 onClickListener 설정
         logoutTextView.setOnClickListener(new View.OnClickListener() {
@@ -359,12 +383,14 @@ public class PleaseList extends AppCompatActivity {
                                     if (documentSnapshot.exists()) {
                                         // Chat room already exists between these users
                                         goToChatRoom(chatRoomId);
+                                        finish();
                                     } else {
                                         // Create a new chat room if it doesn't exist
                                         Calendar calendar = Calendar.getInstance();
                                         String time = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
 
                                         Map<String, Object> roomData = new HashMap<>();
+                                        roomData.put("roomId", chatRoomId);
                                         roomData.put("opponentName", opponentNickname);
                                         roomData.put("myName", nickname);
                                         roomData.put("time", time);
@@ -381,6 +407,7 @@ public class PleaseList extends AppCompatActivity {
 
                                                     // Redirect to the chat room with the created room ID
                                                     goToChatRoom(chatRoomId);
+                                                    finish();
                                                 })
                                                 .addOnFailureListener(e -> {
                                                     // Failed to create chat room
@@ -518,13 +545,8 @@ public class PleaseList extends AppCompatActivity {
 //    }
 
 
-    private void goChatList() {
+    private void goChattingList() {
         Intent intent = new Intent(this, ChattingListActivity.class);
-        startActivity(intent);
-    }
-
-    private void goChatting() {
-        Intent intent = new Intent(this, ChatActivity.class);
         startActivity(intent);
     }
 

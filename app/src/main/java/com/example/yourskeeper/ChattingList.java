@@ -8,17 +8,19 @@ public class ChattingList {
     private String mMessage;
     private String mCreatedBy;
     private String mCreatedFor;
+    private String mRoomId;
     private String mUid;
     private String mTime;
     private Timestamp mTimestamp;
 
     public ChattingList() { } // Needed for Firebase
 
-    public ChattingList(String name, String time, String createdby, String createdfor) {
+    public ChattingList(String name, String time, String roomid, String createdby, String createdfor) {
         mName = name;
         mTime = time;
         mCreatedBy = createdby;
         mCreatedFor = createdfor;
+        mRoomId = roomid;
     }
 
     public String getName() { return mName; }
@@ -38,6 +40,9 @@ public class ChattingList {
 
     public String getTime() { return mTime; }
     public void setTime(String time) { mTime = time; }
+
+    public String getRoomId() { return mRoomId; }
+    public void setRoomId(String roomid) { mRoomId = roomid; }
 
     @ServerTimestamp
     public Timestamp getTimestamp() { return mTimestamp; }
