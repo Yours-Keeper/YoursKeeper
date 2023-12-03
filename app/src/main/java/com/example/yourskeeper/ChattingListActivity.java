@@ -16,6 +16,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ChattingListActivity extends AppCompatActivity {
 
     private FirestoreRecyclerAdapter adapter;
@@ -31,18 +34,32 @@ public class ChattingListActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance(); //위치 맞는지 확인하기
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
-
-
-
         String userId = currentUser.getUid();
 
         setTitle("Using FirestoreRecyclerAdapter");
 
+
+//        Query queryCreatedBy = FirebaseFirestore.getInstance()
+//                .collection("chattingRoom")
+//                .whereEqualTo("createdBy", userId);
+//
+//        Query queryCreatedFor = FirebaseFirestore.getInstance()
+//                .collection("chattingRoom")
+//                .whereEqualTo("createdFor", userId);
+//
+//// Combine both queries locally in your app
+//        List<Query> queries = Arrays.asList(queryCreatedBy, queryCreatedFor);
+//
+//        FirestoreRecyclerOptions<ChattingList> options = new FirestoreRecyclerOptions.Builder<ChattingList>()
+//                .setQuery(mergeQueries(queries), ChattingList.class)
+//                .build();
+
+
+
         Query query = FirebaseFirestore.getInstance()
                 .collection("chattingRoom")
                 .whereEqualTo("createdBy", userId)
-                .orderBy("time", Query.Direction.DESCENDING)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(50);
 
         // Configure recycler adapter options:
@@ -53,11 +70,36 @@ public class ChattingListActivity extends AppCompatActivity {
                 .build();
 
         adapter = new FirestoreRecyclerAdapter<ChattingList, ChattingListHolder>(options) {
+//            @Override
+//            public void onBindViewHolder(ChattingListHolder holder, int position, ChattingList model) {
+//                // Bind the Chat object to the ChatHolder
+//                // ...
+//                holder.bind(model);
+//            }
+
+            //채팅리스트에 상대방 닉네임 표시를 위한 처리
             @Override
             public void onBindViewHolder(ChattingListHolder holder, int position, ChattingList model) {
-                // Bind the Chat object to the ChatHolder
-                // ...
-                holder.bind(model);
+                // Fetch names of users based on their IDs from Firestore
+                String otherUserId = model.getCreatedBy().equals(userId) ? model.getCreatedFor() : model.getCreatedBy();
+
+                FirebaseFirestore.getInstance().collection("users")
+                        .document(otherUserId)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                String otherPersonNickname = documentSnapshot.getString("nickname");
+                                if (otherPersonNickname != null) {
+                                    // Update ChattingList object with the other person's name
+                                    model.setName(otherPersonNickname);
+                                    // Bind the updated model to the ChatHolder
+                                    holder.bind(model);
+                                }
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            // Handle failure
+                        });
             }
 
             @Override
@@ -86,5 +128,18 @@ public class ChattingListActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
+    }
+
+    private Query mergeQueries(List<Query> queries) {
+        Query result = null;
+        for (Query query : queries) {
+            if (result == null) {
+                result = query;
+            } else {
+                // Combine the queries with a logical OR
+                result = result.startAfter(query);
+            }
+        }
+        return result;
     }
 }
