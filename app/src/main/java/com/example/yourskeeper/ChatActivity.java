@@ -1,17 +1,24 @@
 package com.example.yourskeeper;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -35,6 +42,9 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;  // Firebase 인증 객체
     private FirebaseUser currentUser;  // 현재 Firebase 사용자 객체
+    private AlertDialog customDialog;
+    private  String keeperId;
+    private  double keeperLat, keeperLon;
 
     final int TYPE_MY=0;
     final int TYPE_OTHER=1;
@@ -43,6 +53,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
+        ImageButton checkBtn = findViewById(R.id.ckeck_Btn);
 
         db = FirebaseFirestore.getInstance(); //위치 맞는지 확인하기
         mAuth = FirebaseAuth.getInstance();
@@ -69,6 +80,12 @@ public class ChatActivity extends AppCompatActivity {
         FirestoreRecyclerOptions<Chat> options = new FirestoreRecyclerOptions.Builder<Chat>()
                 .setQuery(query, Chat.class)
                 .build();
+        checkBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startDialog();
+            }
+        });
 
         adapter = new FirestoreRecyclerAdapter<Chat, ChatHolder>(options) {
             @Override
@@ -76,6 +93,7 @@ public class ChatActivity extends AppCompatActivity {
                 // Bind the Chat object to the ChatHolder
                 // ...
                 holder.bind(model);
+
             }
 
             @Override
@@ -163,6 +181,115 @@ public class ChatActivity extends AppCompatActivity {
         super.onStop();
         adapter.stopListening();
     }
+    private void startDialog(){
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.start_keep, null); // null 자리는 거의 null로만 씀
+        Intent intent = getIntent();
+        ImageButton changeBtn = findViewById(R.id.ckeck_Btn);
+        ImageButton plusBtn = findViewById(R.id.plus_Btn);
+        String roomId = intent.getStringExtra("ROOM_ID");
+        customDialog = new AlertDialog.Builder(ChatActivity.this, R.style.RoundedCornersDialog_signout)
+                .setView(dialogView)
+                .create();
+
+        customDialog.show();
+        ImageView backButton = customDialog.findViewById(R.id.start_back);
+        Button okButton = customDialog.findViewById(R.id.start_button);
+        db.collection("chattingRoom").document(roomId).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            keeperLat = document.getDouble("keeperLat");
+                            keeperLon = document.getDouble("keeperLon");
+                        } else {
+                            // Firestore 문서가 없거나 null인 경우
+                            Log.d(TAG, "문서 존재하지 않음");
+                        }
+                    } else {
+                        // 작업이 예외와 함께 실패한 경우
+                        Exception exception = task.getException();
+                        if (exception != null) {
+                            Log.e(TAG, "문서 가져오기 오류", exception);
+                        }
+                    }
+                });
+
+
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.dismiss();
+            }
+        });
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.dismiss();
+                changeBtn.setVisibility(View.GONE);
+                plusBtn.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+//    private void showlocationDialog(){
+//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//        View dialogView = inflater.inflate(R.layout.keeper_location, null); // null 자리는 거의 null로만 씀
+//        Intent intent = getIntent();
+//
+//        String roomId = intent.getStringExtra("ROOM_ID");
+//        customDialog = new AlertDialog.Builder(ChatActivity.this, R.style.RoundedCornersDialog_signout)
+//                .setView(dialogView)
+//                .create();
+//
+//        customDialog.show();
+//        TextView locationText = findViewById(R.id.location_text);
+//        Button okButton = customDialog.findViewById(R.id.location_Btn);
+//        db.collection("chattingRoom").document(roomId).get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        DocumentSnapshot document = task.getResult();
+//                        if (document != null && document.exists()) {
+//                            keeperId = document.getString("createdFor");
+//                        } else {
+//                            // Firestore 문서가 없거나 null인 경우
+//                            Log.d(TAG, "문서 존재하지 않음");
+//                        }
+//                    } else {
+//                        // 작업이 예외와 함께 실패한 경우
+//                        Exception exception = task.getException();
+//                        if (exception != null) {
+//                            Log.e(TAG, "문서 가져오기 오류", exception);
+//                        }
+//                    }
+//                });
+//        db.collection("storeContent").document(keeperId).get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        DocumentSnapshot document = task.getResult();
+//                        if (document != null && document.exists()) {
+//                            keeperLat = document.getDouble("lat");
+//                            keeperLon = document.getDouble("lon");
+//                        } else {
+//                            // Firestore 문서가 없거나 null인 경우
+//                            Log.d(TAG, "문서 존재하지 않음");
+//                        }
+//                    } else {
+//                        // 작업이 예외와 함께 실패한 경우
+//                        Exception exception = task.getException();
+//                        if (exception != null) {
+//                            Log.e(TAG, "문서 가져오기 오류", exception);
+//                        }
+//                    }
+//                });
+//
+//        okButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                customDialog.dismiss();
+//            }
+//        });
+//    }
 
     private void addData() {
         mAuth = FirebaseAuth.getInstance();
@@ -181,7 +308,9 @@ public class ChatActivity extends AppCompatActivity {
 
         Map<String, Object> data = new HashMap<>();
 
+
         DocumentReference userdocRef = db.collection("users").document(userId);
+
         userdocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

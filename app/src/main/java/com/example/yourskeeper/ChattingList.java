@@ -9,18 +9,22 @@ public class ChattingList {
     private String mCreatedBy;
     private String mCreatedFor;
     private String mRoomId;
+    private double mLat;
+    private double mLon;
     private String mUid;
     private String mTime;
     private Timestamp mTimestamp;
 
     public ChattingList() { } // Needed for Firebase
 
-    public ChattingList(String name, String time, String roomid, String createdby, String createdfor) {
+    public ChattingList(String name, String time, String roomid, String createdby, String createdfor, double lat, double lon) {
         mName = name;
         mTime = time;
         mCreatedBy = createdby;
         mCreatedFor = createdfor;
         mRoomId = roomid;
+        mLat =lat;
+        mLon = lon;
     }
 
     public String getName() { return mName; }
@@ -31,7 +35,14 @@ public class ChattingList {
 
     public String getUid() { return mUid; }
     public void setUid(String uid) { mUid = uid; }
-
+    public void setLat(double lat) {mLat =lat;}
+    public double getLat() {
+        return mLat;
+    }
+    public void setLon(double lon) {mLon =lon;}
+    public double getLon() {
+        return mLon;
+    }
     public String getCreatedBy() { return mCreatedBy; }
     public void setCreatedBy(String createdby) { mCreatedBy = createdby; }
 

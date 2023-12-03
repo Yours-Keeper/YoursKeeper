@@ -13,6 +13,8 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     private final TextView mNameField;
     private final TextView mTextField;
     private final TextView mTimeField;
+    private double currLat;
+    private double currLon;
 
 
     public ChatHolder(@NonNull View itemView) {
@@ -26,11 +28,14 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         setName(chat.getName());
         setMessage(chat.getMessage());
         setTime(chat.getTime());
+
     }
 
     private void setName(@Nullable String name) {
         mNameField.setText(name);
     }
+
+
 
     private void setMessage(@Nullable String text) {
         mTextField.setText(text);

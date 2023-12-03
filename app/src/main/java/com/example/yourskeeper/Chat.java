@@ -8,6 +8,7 @@ public class Chat {
     private String mMessage;
     private String mUid;
     private String mTime;
+
     private Timestamp mTimestamp;
 
     public Chat() { } // Needed for Firebase
@@ -17,6 +18,7 @@ public class Chat {
         mMessage = message;
         mUid = uid;
         mTime = time;
+
     }
 
     public String getName() { return mName; }
@@ -31,6 +33,8 @@ public class Chat {
 
     public void setUid(String uid) { mUid = uid; }
     public String getTime() { return mTime; }
+
+
 
     public void setTime(String time) { mTime = time; }
 
