@@ -6,36 +6,40 @@ import com.google.firebase.firestore.ServerTimestamp;
 public class ChattingList {
     private String mName;
     private String mMessage;
+    private String mCreatedBy;
+    private String mCreatedFor;
     private String mUid;
     private String mTime;
     private Timestamp mTimestamp;
 
     public ChattingList() { } // Needed for Firebase
 
-    public ChattingList(String name, String time, String uid) {
+    public ChattingList(String name, String time, String createdby, String createdfor) {
         mName = name;
         mTime = time;
-        mUid = uid;
+        mCreatedBy = createdby;
+        mCreatedFor = createdfor;
     }
 
     public String getName() { return mName; }
-
     public void setName(String name) { mName = name; }
 
     public String getMessage() { return mMessage; }
-
     public void setMessage(String message) { mMessage = message; }
 
     public String getUid() { return mUid; }
-
     public void setUid(String uid) { mUid = uid; }
 
-    public String getTime() { return mTime; }
+    public String getCreatedBy() { return mCreatedBy; }
+    public void setCreatedBy(String createdby) { mCreatedBy = createdby; }
 
+    public String getCreatedFor() { return mCreatedFor; }
+    public void setCreatedFor(String createdfor) { mCreatedFor = createdfor; }
+
+    public String getTime() { return mTime; }
     public void setTime(String time) { mTime = time; }
 
     @ServerTimestamp
     public Timestamp getTimestamp() { return mTimestamp; }
-
     public void setTimestamp(Timestamp timestamp) { mTimestamp = timestamp; }
 }
