@@ -120,7 +120,7 @@ public class PleaseList extends AppCompatActivity {
                             Store store = document.toObject(Store.class);
 
                             // 사용자 지정 다이얼로그 표시
-                            showCustomModal( store.getContent(), store.getNickname(), store.getUid());
+                            showCustomModal( store.getContent(), store.getNickname(), store.getUid(), store.getLat(), store.getLon());
                         }
                     }
                 });
@@ -134,7 +134,7 @@ public class PleaseList extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void showCustomModal(String content, String chat, String uid) {
+    private void showCustomModal(String content, String chat, String uid, double lat, double lon) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.list_detail);
         content = content.replace("\\n", "\n");
@@ -179,7 +179,7 @@ public class PleaseList extends AppCompatActivity {
                     finish();
                 } else {
                     // If the text is not "Go to my chat list", perform the createChatRoom method
-                    createChatRoom(uid, chat);
+                    createChatRoom(uid, chat, lat, lon);
                 }
             }
         });
@@ -355,7 +355,7 @@ public class PleaseList extends AppCompatActivity {
 
 
 
-    private void createChatRoom(String opponentUid, String opponentNickname) {
+    private void createChatRoom(String opponentUid, String opponentNickname, double keeperLat, double keeperLon) {
         String currentUserUid = mAuth.getCurrentUser().getUid();
 
 
@@ -366,11 +366,11 @@ public class PleaseList extends AppCompatActivity {
                 if (document.exists()) {
                     // Access the "nickname" field value
                     String nickname = document.getString("nickname");
-                    double keeperLat= document.getDouble("lat");
-                    double keeperLon= document.getDouble("lon");
+
 
                     // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
                     String[] userIds = {currentUserUid, opponentUid};
+
                     Arrays.sort(userIds);
 
                     String chatRoomId = userIds[0] + "_" + userIds[1]; // Unique chat room ID

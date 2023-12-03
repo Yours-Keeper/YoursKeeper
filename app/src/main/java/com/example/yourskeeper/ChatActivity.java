@@ -188,6 +188,7 @@ public class ChatActivity extends AppCompatActivity {
         ImageButton changeBtn = findViewById(R.id.ckeck_Btn);
         ImageButton plusBtn = findViewById(R.id.plus_Btn);
         String roomId = intent.getStringExtra("ROOM_ID");
+
         customDialog = new AlertDialog.Builder(ChatActivity.this, R.style.RoundedCornersDialog_signout)
                 .setView(dialogView)
                 .create();
@@ -231,65 +232,90 @@ public class ChatActivity extends AppCompatActivity {
                 plusBtn.setVisibility(View.VISIBLE);
             }
         });
+        plusBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showlocationDialog();
+            }
+        });
     }
-//    private void showlocationDialog(){
-//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//        View dialogView = inflater.inflate(R.layout.keeper_location, null); // null 자리는 거의 null로만 씀
-//        Intent intent = getIntent();
-//
-//        String roomId = intent.getStringExtra("ROOM_ID");
-//        customDialog = new AlertDialog.Builder(ChatActivity.this, R.style.RoundedCornersDialog_signout)
-//                .setView(dialogView)
-//                .create();
-//
-//        customDialog.show();
-//        TextView locationText = findViewById(R.id.location_text);
-//        Button okButton = customDialog.findViewById(R.id.location_Btn);
-//        db.collection("chattingRoom").document(roomId).get()
-//                .addOnCompleteListener(task -> {
-//                    if (task.isSuccessful()) {
-//                        DocumentSnapshot document = task.getResult();
-//                        if (document != null && document.exists()) {
-//                            keeperId = document.getString("createdFor");
-//                        } else {
-//                            // Firestore 문서가 없거나 null인 경우
-//                            Log.d(TAG, "문서 존재하지 않음");
-//                        }
-//                    } else {
-//                        // 작업이 예외와 함께 실패한 경우
-//                        Exception exception = task.getException();
-//                        if (exception != null) {
-//                            Log.e(TAG, "문서 가져오기 오류", exception);
-//                        }
-//                    }
-//                });
-//        db.collection("storeContent").document(keeperId).get()
-//                .addOnCompleteListener(task -> {
-//                    if (task.isSuccessful()) {
-//                        DocumentSnapshot document = task.getResult();
-//                        if (document != null && document.exists()) {
-//                            keeperLat = document.getDouble("lat");
-//                            keeperLon = document.getDouble("lon");
-//                        } else {
-//                            // Firestore 문서가 없거나 null인 경우
-//                            Log.d(TAG, "문서 존재하지 않음");
-//                        }
-//                    } else {
-//                        // 작업이 예외와 함께 실패한 경우
-//                        Exception exception = task.getException();
-//                        if (exception != null) {
-//                            Log.e(TAG, "문서 가져오기 오류", exception);
-//                        }
-//                    }
-//                });
-//
-//        okButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                customDialog.dismiss();
-//            }
-//        });
-//    }
+    private void showlocationDialog(){
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.keeper_location, null); // null 자리는 거의 null로만 씀
+        Intent intent = getIntent();
+
+        String roomId = intent.getStringExtra("ROOM_ID");
+        customDialog = new AlertDialog.Builder(ChatActivity.this, R.style.RoundedCornersDialog_signout)
+                .setView(dialogView)
+                .create();
+
+        customDialog.show();
+        TextView locationText = customDialog.findViewById(R.id.location_text);
+        Button okButton = customDialog.findViewById(R.id.location_Btn);
+        db.collection("chattingRoom").document(roomId).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            keeperId = document.getString("createdFor");
+
+                            db.collection("storeContent").document(keeperId).get()
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful()) {
+                                            DocumentSnapshot locationDocument = task1.getResult();
+                                            if (locationDocument != null && locationDocument.exists()) {
+                                                double currLat = locationDocument.getDouble("lat");
+                                                double currLon = locationDocument.getDouble("lon");
+
+                                                // 검색된 값으로 locationText를 업데이트합니다.
+
+                                                double latDifference = Math.abs(keeperLat - currLat);
+                                                double lonDifference = Math.abs(keeperLon - currLon);
+
+                                                // 위치 차이가 0.003 이상인 경우에 대한 처리
+                                                if (latDifference >= 0.001 || lonDifference >= 0.001) {
+                                                    // 위치가 변경된 경우에 대한 처리
+                                                    String locationString = "위도: " + currLat + "\n경도: " + currLon;
+                                                    locationText.setText("Keeper가 \n" +
+                                                            "원래 위치에서 벗어났어요!");
+                                                } else {
+                                                    // 위치가 변경되지 않은 경우에 대한 처리
+                                                    locationText.setText("Keeper가 \n" +
+                                                            "원래 위치에 있어요");
+                                                }
+                                            } else {
+                                                // Firestore 문서가 없거나 null인 경우
+                                                Log.d(TAG, "문서 존재하지 않음");
+                                            }
+                                        } else {
+                                            // 작업이 예외와 함께 실패한 경우
+                                            Exception exception = task1.getException();
+                                            if (exception != null) {
+                                                Log.e(TAG, "문서 가져오기 오류", exception);
+                                            }
+                                        }
+                                    });
+                        } else {
+                            // Firestore 문서가 없거나 null인 경우
+                            Log.d(TAG, "문서 존재하지 않음");
+                        }
+                    } else {
+                        // 작업이 예외와 함께 실패한 경우
+                        Exception exception = task.getException();
+                        if (exception != null) {
+                            Log.e(TAG, "문서 가져오기 오류", exception);
+                        }
+                    }
+                });
+
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.dismiss();
+            }
+        });
+    }
 
     private void addData() {
         mAuth = FirebaseAuth.getInstance();
