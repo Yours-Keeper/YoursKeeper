@@ -359,13 +359,15 @@ public class PleaseList extends AppCompatActivity {
         String currentUserUid = mAuth.getCurrentUser().getUid();
 
 
-        DocumentReference userDocRef = db.collection("users").document(currentUserUid);
+        DocumentReference userDocRef = db.collection("storeContent").document(currentUserUid);
         userDocRef.get().addOnCompleteListener(uidtask -> {
             if (uidtask.isSuccessful()) {
                 DocumentSnapshot document = uidtask.getResult();
                 if (document.exists()) {
                     // Access the "nickname" field value
                     String nickname = document.getString("nickname");
+                    double keeperLat= document.getDouble("lat");
+                    double keeperLon= document.getDouble("lon");
 
                     // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
                     String[] userIds = {currentUserUid, opponentUid};
@@ -391,12 +393,16 @@ public class PleaseList extends AppCompatActivity {
 
                                         Map<String, Object> roomData = new HashMap<>();
                                         roomData.put("roomId", chatRoomId);
+
                                         roomData.put("opponentName", opponentNickname);
                                         roomData.put("myName", nickname);
+
                                         roomData.put("time", time);
                                         roomData.put("createdBy", currentUserUid);
                                         roomData.put("createdFor", opponentUid);
                                         roomData.put("timestamp", FieldValue.serverTimestamp());
+                                        roomData.put("keeperLat", keeperLat);
+                                        roomData.put("keeperLon", keeperLon);
 
                                         db.collection("chattingRoom")
                                                 .document(chatRoomId)

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_dialog_bg"
+    android:padding="20dp">
+
+    <TextView android:id="@+id/start_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="물건을  맡기기/맡겨주기 를 \n시작하시겠습니까?"
+        android:layout_centerHorizontal="true"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"/>
+
+    <ImageView
+        android:id="@+id/start_back"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_below="@id/start_text"
+        android:layout_marginTop="61dp"
+        android:src="@drawable/back" />
+
+
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start_text"
+        android:layout_alignLeft="@id/start_back"
+        android:layout_marginLeft="102dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#FAFF06"
+        android:text="확인"
+        android:textColor="@color/black" />
+
+
+</RelativeLayout>

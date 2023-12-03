@@ -25,6 +25,13 @@
         android:layout_height="wrap_content"
         android:src="@drawable/check"
         android:backgroundTint="@color/black"/>
+    <ImageButton
+        android:id="@+id/plus_Btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/plus"
+        android:visibility="gone"
+        android:backgroundTint="@color/black"/>
 
     <EditText
         android:id="@+id/chat_text"
