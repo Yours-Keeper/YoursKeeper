@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -82,6 +83,7 @@ public class ChattingListActivity extends AppCompatActivity {
 
         Query query = FirebaseFirestore.getInstance()
                 .collection("chattingRoom")
+                .where(Filter.or(Filter.equalTo("createdBy", userId), Filter.equalTo("createdFor", userId)))
                 .whereEqualTo("createdBy", userId)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(50);

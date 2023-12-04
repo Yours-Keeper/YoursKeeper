@@ -40,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
@@ -53,8 +54,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 
-
-
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -153,6 +154,9 @@ public class PleaseMain_act extends AppCompatActivity
         mNaverMap.setLocationSource(locationSource);
         naverMap.setMinZoom(14.0); // 원하는 값으로 조절 가능
         naverMap.setMaxZoom(17.0); // 원하는 값으로 조절 가능
+
+        currentUser = mAuth.getCurrentUser();
+
         String userId = currentUser != null ? currentUser.getUid() : null;
         // 권한 확인, 결과는 onRequestPermissionResult 콜백 메서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
@@ -280,7 +284,7 @@ public class PleaseMain_act extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialog.dismiss(); // Close current dialog
-                showCustomListModal(content, chat); // Deliver appropriate content
+                showCustomListModal(content, chat, nickname, userId); // Deliver appropriate content
             }
         });
 
@@ -309,7 +313,7 @@ public class PleaseMain_act extends AppCompatActivity
         dialog.show();
     }
 
-    private void showCustomListModal(String content, String chat) {
+    private void showCustomListModal(String content, String chat, String nickname, String uid) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.list_detail);
 
@@ -318,6 +322,7 @@ public class PleaseMain_act extends AppCompatActivity
         TextView textContent = dialog.findViewById(R.id.list_detail_content);
         textContent.setText(content);
         Button chatBtn = dialog.findViewById(R.id.list_detail_Btn);
+
         if(chat.equals("내 채팅 목록으로 가기")){
             chatBtn.setText(chat);
             chatBtn.setOnClickListener(new View.OnClickListener() {
@@ -328,6 +333,8 @@ public class PleaseMain_act extends AppCompatActivity
                 }
             });
         }
+
+
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -381,6 +388,11 @@ public class PleaseMain_act extends AppCompatActivity
     }
     private void goChattingList() {
         Intent intent = new Intent(this, ChattingListActivity.class);
+        startActivity(intent);
+    }
+    private void goToChatRoom(String roomId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
         startActivity(intent);
     }
 
@@ -477,6 +489,148 @@ public class PleaseMain_act extends AppCompatActivity
             }
         });
     }
+
+
+    private void createChatRoom(String opponentUid, String opponentNickname) {
+        String currentUserUid = mAuth.getCurrentUser().getUid();
+
+
+        DocumentReference userDocRef = db.collection("storeContent").document(currentUserUid);
+        userDocRef.get().addOnCompleteListener(uidtask -> {
+            if (uidtask.isSuccessful()) {
+                DocumentSnapshot document = uidtask.getResult();
+                if (document.exists()) {
+                    // Access the "nickname" field value
+                    String nickname = document.getString("nickname");
+                    double keeperLat= document.getDouble("lat");
+                    double keeperLon= document.getDouble("lon");
+
+                    // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
+                    String[] userIds = {currentUserUid, opponentUid};
+                    Arrays.sort(userIds);
+
+                    String chatRoomId = userIds[0] + "_" + userIds[1]; // Unique chat room ID
+
+                    // Check if the chat room already exists
+                    db.collection("chattingRoom")
+                            .document(chatRoomId)
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot documentSnapshot = task.getResult();
+                                    if (documentSnapshot.exists()) {
+                                        // Chat room already exists between these users
+                                        goToChatRoom(chatRoomId);
+                                        finish();
+                                    } else {
+                                        // Create a new chat room if it doesn't exist
+                                        Calendar calendar = Calendar.getInstance();
+                                        String time = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
+
+                                        Map<String, Object> roomData = new HashMap<>();
+                                        roomData.put("roomId", chatRoomId);
+
+                                        roomData.put("opponentName", opponentNickname);
+                                        roomData.put("myName", nickname);
+
+                                        roomData.put("time", time);
+                                        roomData.put("createdBy", currentUserUid);
+                                        roomData.put("createdFor", opponentUid);
+                                        roomData.put("timestamp", FieldValue.serverTimestamp());
+                                        roomData.put("keeperLat", keeperLat);
+                                        roomData.put("keeperLon", keeperLon);
+
+                                        db.collection("chattingRoom")
+                                                .document(chatRoomId)
+                                                .set(roomData)
+                                                .addOnSuccessListener(aVoid -> {
+                                                    // New chat room created successfully
+                                                    Log.d(TAG, "Chat room created with ID: " + chatRoomId);
+
+                                                    // Redirect to the chat room with the created room ID
+                                                    goToChatRoom(chatRoomId);
+                                                    finish();
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    // Failed to create chat room
+                                                    Log.e(TAG, "Error creating chat room", e);
+                                                    // Handle failure if necessary
+                                                });
+                                    }
+                                } else {
+                                    Log.e(TAG, "Error getting chat room document", task.getException());
+                                    // Handle error if necessary
+                                }
+                            });
+
+                    if (nickname != null) {
+                        // Use the retrieved nickname
+                        Log.d(TAG, "Nickname: " + nickname);
+                    } else {
+                        // Handle null value if needed
+                        Log.d(TAG, "Nickname is null");
+                    }
+                } else {
+                    Log.d(TAG, "No such document");
+                }
+            } else {
+                Log.d(TAG, "get failed with ", uidtask.getException());
+            }
+        });
+
+
+//        // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
+//        String[] userIds = {currentUserUid, opponentUid};
+//        Arrays.sort(userIds);
+//
+//        String chatRoomId = userIds[0] + "_" + userIds[1]; // Unique chat room ID
+//
+//        // Check if the chat room already exists
+//        db.collection("chattingRoom")
+//                .document(chatRoomId)
+//                .get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        DocumentSnapshot documentSnapshot = task.getResult();
+//                        if (documentSnapshot.exists()) {
+//                            // Chat room already exists between these users
+//                            goToChatRoom(chatRoomId);
+//                        } else {
+//                            // Create a new chat room if it doesn't exist
+//                            Calendar calendar = Calendar.getInstance();
+//                            String time = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
+//
+//                            Map<String, Object> roomData = new HashMap<>();
+//                            roomData.put("opponentName", opponentNickname);
+//                            roomData.put("myName", opponentNickname);
+//                            roomData.put("time", time);
+//                            roomData.put("createdBy", currentUserUid);
+//                            roomData.put("createdFor", opponentUid);
+//                            roomData.put("timestamp", FieldValue.serverTimestamp());
+//
+//                            db.collection("chattingRoom")
+//                                    .document(chatRoomId)
+//                                    .set(roomData)
+//                                    .addOnSuccessListener(aVoid -> {
+//                                        // New chat room created successfully
+//                                        Log.d(TAG, "Chat room created with ID: " + chatRoomId);
+//
+//                                        // Redirect to the chat room with the created room ID
+//                                        goToChatRoom(chatRoomId);
+//                                    })
+//                                    .addOnFailureListener(e -> {
+//                                        // Failed to create chat room
+//                                        Log.e(TAG, "Error creating chat room", e);
+//                                        // Handle failure if necessary
+//                                    });
+//                        }
+//                    } else {
+//                        Log.e(TAG, "Error getting chat room document", task.getException());
+//                        // Handle error if necessary
+//                    }
+//                });
+    }
+
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, MainActivity.class);
