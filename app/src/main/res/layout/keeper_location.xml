@@ -13,7 +13,7 @@
         android:layout_marginTop="40dp"
         android:gravity="center"
         android:layout_centerHorizontal="true"
-        android:text="keeper가\n 원래 위치에 있어요"
+
         android:textSize="18sp"
 
         android:textStyle="bold" />
