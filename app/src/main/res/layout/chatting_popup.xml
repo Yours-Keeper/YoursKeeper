@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="300dp"
+    android:background="@drawable/chat_plus_button_pressed_rounded"
+    android:padding="20dp">
+
+    <LinearLayout android:id="@+id/text_popup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="15dp">
+        <TextView android:id="@+id/nickname_popup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#001AFF"
+            android:textStyle="bold"
+            android:textSize="23sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="님이 맡아주고 있어요"
+            android:textStyle="bold"
+            android:textSize="23sp"/>
+    </LinearLayout>
+
+    <Chronometer android:id="@+id/time_popup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:gravity="center"
+        android:text="00:00"
+        android:textSize="50sp" />
+
+    <Button android:id="@+id/nickname_location_button"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/time_popup"
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="20dp"
+        android:backgroundTint="#FAFF06"
+        android:text=""
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#001AFF"
+        android:gravity="left"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/location"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/time_popup"
+        android:layout_marginStart="-50dp"
+        android:layout_marginTop="59dp"
+        android:layout_toRightOf="@id/nickname_location_button"
+        android:src="@drawable/location"
+        android:visibility="invisible"/>
+
+    <Button android:id="@+id/return_popup_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/time_popup"
+        android:layout_marginTop="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="#FAFF06"
+        android:text="돌려줬어요"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:visibility="invisible"/>
+
+    <Button android:id="@+id/big_return_popup_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/time_popup"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#FAFF06"
+        android:text="돌려줬어요"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:visibility="invisible"/>
+
+</RelativeLayout>

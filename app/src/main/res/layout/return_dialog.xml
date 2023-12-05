@@ -5,32 +5,30 @@
     android:background="@drawable/rounded_dialog_bg"
     android:padding="20dp">
 
-    <TextView android:id="@+id/start_text"
+    <TextView android:id="@+id/return_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="물건을 맡기기/맡겨주기 를 \n시작하시겠습니까?"
-        android:layout_centerHorizontal="true"
-        android:textSize="15sp"
+        android:text="보관/반환이 성공적으로\n이루어졌나요?"
+        android:textSize="15dp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginStart="20dp"
         android:layout_marginTop="40dp"/>
 
     <ImageView
-        android:id="@+id/start_back"
+        android:id="@+id/return_back"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_below="@id/start_text"
+        android:layout_below="@id/return_text"
         android:layout_marginTop="61dp"
         android:src="@drawable/back" />
 
-
     <Button
-        android:id="@+id/start_button"
+        android:id="@+id/return_ok_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/start_text"
-        android:layout_alignLeft="@id/start_back"
+        android:layout_below="@id/return_text"
+        android:layout_alignLeft="@id/return_back"
         android:layout_marginLeft="102dp"
         android:layout_marginTop="50dp"
         android:backgroundTint="#FAFF06"
