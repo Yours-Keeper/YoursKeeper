@@ -207,6 +207,7 @@ public class PleaseMain_act extends AppCompatActivity
                                             double userLat = document.getDouble("lat");
                                             double userLon = document.getDouble("lon");
                                             String nickName = document.getString("nickname");
+                                            String storeUid = document.getString("uid");
                                             String userTime = document.getString("time");
                                             String content = document.getString("content");
                                             long point = document.getLong("point");
@@ -235,7 +236,7 @@ public class PleaseMain_act extends AppCompatActivity
                                                 }else{
                                                     chat="채팅하기";
                                                 }
-                                                showCustomModal("마커 정보", nickName, distanceToMarker, userId, userTime, content, point, chat);
+                                                showCustomModal("마커 정보", nickName, distanceToMarker, storeUid, userTime, content, point, chat);
                                                 return true;
                                             });
 
@@ -268,7 +269,7 @@ public class PleaseMain_act extends AppCompatActivity
     }
 
 
-    private void showCustomModal(String title, String nickname, float distance, String userId, String userTime, String content, long point, String chat) {
+    private void showCustomModal(String title, String nickname, float distance, String storeUid, String userTime, String content, long point, String chat) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.dialog_custom);
         TextView textTitle = dialog.findViewById(R.id.modalTitle);
@@ -284,7 +285,7 @@ public class PleaseMain_act extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 dialog.dismiss(); // Close current dialog
-                showCustomListModal(content, chat, nickname, userId); // Deliver appropriate content
+                showCustomListModal(content, chat, nickname, storeUid); // Deliver appropriate content
             }
         });
 
@@ -313,7 +314,7 @@ public class PleaseMain_act extends AppCompatActivity
         dialog.show();
     }
 
-    private void showCustomListModal(String content, String chat, String nickname, String uid) {
+    private void showCustomListModal(String content, String chat, String nickname, String storeUid) {
         Dialog dialog = new Dialog(this, R.style.RoundedCornersDialog);
         dialog.setContentView(R.layout.list_detail);
 
@@ -323,16 +324,36 @@ public class PleaseMain_act extends AppCompatActivity
         textContent.setText(content);
         Button chatBtn = dialog.findViewById(R.id.list_detail_Btn);
 
+
         if(chat.equals("내 채팅 목록으로 가기")){
             chatBtn.setText(chat);
-            chatBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    goChatList();
-                    finish();
-                }
-            });
         }
+        chatBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String buttonText = chatBtn.getText().toString();
+                if (buttonText.equals("내 채팅 목록으로 가기")) {
+                    goChattingList();
+                    finish();
+                } else {
+                    // If the text is not "Go to my chat list", perform the createChatRoom method
+                    createChatRoom(storeUid, nickname);
+                }
+            }
+        });
+
+
+
+//        if(chat.equals("내 채팅 목록으로 가기")){
+//            chatBtn.setText(chat);
+//            chatBtn.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    goChatList();
+//                    finish();
+//                }
+//            });
+//        }
 
 
         ImageView backBtn = dialog.findViewById(R.id.list_detail_back);
