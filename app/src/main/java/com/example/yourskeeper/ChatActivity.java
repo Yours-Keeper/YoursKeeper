@@ -629,13 +629,13 @@ public class ChatActivity extends AppCompatActivity {
                         // PleaseSide (방을 만든 사용자)
                         if (!isOkButtonPressed_PleaseSide) {
                             // 만약 PleaseSide의 버튼이 눌리지 않았다면, 버튼 상태를 업데이트
-                            updateOkButtonStatusInFirestore(roomId, true, false);
+                            updateOkButtonStatusInFirestore(roomId, true, isOkButtonPressed_StoreSide);
                         }
                     } else {
                         // StoreSide (방에 초대된 사용자)
                         if (!isOkButtonPressed_StoreSide) {
                             // 만약 StoreSide의 버튼이 눌리지 않았다면, 버튼 상태를 업데이트
-                            updateOkButtonStatusInFirestore(roomId, false, true);
+                            updateOkButtonStatusInFirestore(roomId, isOkButtonPressed_PleaseSide, true);
                         }
                     }
                 }
