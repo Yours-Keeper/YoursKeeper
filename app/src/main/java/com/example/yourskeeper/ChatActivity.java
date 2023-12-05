@@ -975,7 +975,7 @@ public class ChatActivity extends AppCompatActivity {
                     boolean return_complete = document.getBoolean("return_complete");
 
                     if (return_complete) {
-                        checkBtn.setVisibility(View.GONE);
+                        checkBtn.setVisibility(View.VISIBLE);
                         plusBtn.setVisibility(View.GONE);
                     }
                 }
@@ -983,5 +983,15 @@ public class ChatActivity extends AppCompatActivity {
                 Log.e(TAG, "Error getting room document", task.getException());
             }
         });
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("isOkButtonPressed_PleaseSide", false);
+        data.put("isOkButtonPressed_StoreSide", false);
+        data.put("ok_timestamp", FieldValue.serverTimestamp());
+
+        db.collection("chattingRoom").document(roomId)
+                .update(data)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Ok Button 상태가 성공적으로 업데이트되었습니다"))
+                .addOnFailureListener(e -> Log.e(TAG, "Ok Button 상태 업데이트 중 오류 발생", e));
     }
 }
