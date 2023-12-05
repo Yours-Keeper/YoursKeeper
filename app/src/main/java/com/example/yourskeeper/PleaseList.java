@@ -366,6 +366,8 @@ public class PleaseList extends AppCompatActivity {
                 if (document.exists()) {
                     // Access the "nickname" field value
                     String nickname = document.getString("nickname");
+                    boolean isOkButtonPressed = false;
+                    boolean return_complete = false;
 
 
                     // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
@@ -403,6 +405,11 @@ public class PleaseList extends AppCompatActivity {
                                         roomData.put("timestamp", FieldValue.serverTimestamp());
                                         roomData.put("keeperLat", keeperLat);
                                         roomData.put("keeperLon", keeperLon);
+
+                                        roomData.put("isOkButtonPressed_PleaseSide", isOkButtonPressed);
+                                        roomData.put("isOkButtonPressed_StoreSide", isOkButtonPressed);
+                                        roomData.put("ok_timestamp", FieldValue.serverTimestamp());
+                                        roomData.put("return_complete", return_complete);
 
                                         db.collection("chattingRoom")
                                                 .document(chatRoomId)
