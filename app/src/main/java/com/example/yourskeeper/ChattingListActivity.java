@@ -147,7 +147,12 @@ public class ChattingListActivity extends AppCompatActivity {
                             DocumentSnapshot document = getSnapshots().getSnapshot(position);
                             ChattingList cl = document.toObject(ChattingList.class);
 
-                            goToChatRoom(cl.getRoomId(), cl.getMyName());
+                            if(cl.getCreatedBy().equals(userId)) {
+                                goToChatRoom(cl.getRoomId(), cl.getOpponentName());
+                            }
+                            else {
+                                goToChatRoom(cl.getRoomId(), cl.getMyName());
+                            }
                             finish();
                         }
                     }
