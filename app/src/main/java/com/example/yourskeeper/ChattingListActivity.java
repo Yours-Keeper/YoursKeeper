@@ -117,7 +117,7 @@ public class ChattingListActivity extends AppCompatActivity {
                                 String otherPersonNickname = documentSnapshot.getString("nickname");
                                 if (otherPersonNickname != null) {
                                     // Update ChattingList object with the other person's name
-                                    model.setName(otherPersonNickname);
+                                    model.setMyName(otherPersonNickname);
                                     // Bind the updated model to the ChatHolder
                                     holder.bind(model);
                                 }
@@ -147,7 +147,7 @@ public class ChattingListActivity extends AppCompatActivity {
                             DocumentSnapshot document = getSnapshots().getSnapshot(position);
                             ChattingList cl = document.toObject(ChattingList.class);
 
-                            goToChatRoom(cl.getRoomId());
+                            goToChatRoom(cl.getRoomId(), cl.getMyName());
                             finish();
                         }
                     }
@@ -305,9 +305,10 @@ public class ChattingListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void goToChatRoom(String roomId) {
+    private void goToChatRoom(String roomId, String name) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
+        intent.putExtra("OTHERS_NAME", name);
         startActivity(intent);
     }
 

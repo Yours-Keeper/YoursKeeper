@@ -386,7 +386,7 @@ public class PleaseList extends AppCompatActivity {
                                     DocumentSnapshot documentSnapshot = task.getResult();
                                     if (documentSnapshot.exists()) {
                                         // Chat room already exists between these users
-                                        goToChatRoom(chatRoomId);
+                                        goToChatRoom(chatRoomId, opponentNickname);
                                         finish();
                                     } else {
                                         // Create a new chat room if it doesn't exist
@@ -419,7 +419,7 @@ public class PleaseList extends AppCompatActivity {
                                                     Log.d(TAG, "Chat room created with ID: " + chatRoomId);
 
                                                     // Redirect to the chat room with the created room ID
-                                                    goToChatRoom(chatRoomId);
+                                                    goToChatRoom(chatRoomId, opponentNickname);
                                                     finish();
                                                 })
                                                 .addOnFailureListener(e -> {
@@ -563,9 +563,10 @@ public class PleaseList extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void goToChatRoom(String roomId) {
+    private void goToChatRoom(String roomId, String name) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
+        intent.putExtra("OTHERS_NAME", name);
         startActivity(intent);
     }
 
