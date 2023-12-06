@@ -4,7 +4,8 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 
 public class ChattingList {
-    private String mName;
+    private String mMyName;
+    private String mOpponentName;
     private String mMessage;
     private String mCreatedBy;
     private String mCreatedFor;
@@ -17,8 +18,9 @@ public class ChattingList {
 
     public ChattingList() { } // Needed for Firebase
 
-    public ChattingList(String name, String time, String roomid, String createdby, String createdfor, double lat, double lon) {
-        mName = name;
+    public ChattingList(String myName, String opponentName, String time, String roomid, String createdby, String createdfor, double lat, double lon) {
+        mMyName = myName;
+        mOpponentName = opponentName;
         mTime = time;
         mCreatedBy = createdby;
         mCreatedFor = createdfor;
@@ -27,8 +29,11 @@ public class ChattingList {
         mLon = lon;
     }
 
-    public String getName() { return mName; }
-    public void setName(String name) { mName = name; }
+    public String getMyName() { return mMyName; }
+    public void setMyName(String myName) { mMyName = myName; }
+
+    public String getOpponentName() { return mOpponentName; }
+    public void setOpponentName(String opponentName) { mOpponentName = opponentName; }
 
     public String getMessage() { return mMessage; }
     public void setMessage(String message) { mMessage = message; }

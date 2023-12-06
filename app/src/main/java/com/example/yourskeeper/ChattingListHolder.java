@@ -18,7 +18,7 @@ public class ChattingListHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(@NonNull ChattingList chattingList) {
-        setName(chattingList.getName());
+        setName(chattingList.getMyName());
         setTime(chattingList.getTime());
     }
 

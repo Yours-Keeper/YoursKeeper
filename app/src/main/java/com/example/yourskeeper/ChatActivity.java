@@ -65,6 +65,9 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
 
+        ImageView btnMenu = findViewById(R.id.btnMenu);
+        ImageView btnBack = findViewById(R.id.btnBack);
+        TextView textTitle = findViewById(R.id.toolbar_Titie);
 
         db = FirebaseFirestore.getInstance(); //위치 맞는지 확인하기
         mAuth = FirebaseAuth.getInstance();
@@ -73,6 +76,10 @@ public class ChatActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String roomId = intent.getStringExtra("ROOM_ID");
+        String othersName = intent.getStringExtra("OTHERS_NAME");
+        Log.d("kuj", othersName);
+
+        textTitle.setText(othersName);
 
         ImageButton sendButton = findViewById(R.id.send_Btn);
         ImageButton checkBtn = findViewById(R.id.ckeck_Btn);
@@ -185,6 +192,19 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addData();
+            }
+        });
+
+
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { showMenuPopup(v); }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
@@ -993,5 +1013,113 @@ public class ChatActivity extends AppCompatActivity {
                 .update(data)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Ok Button 상태가 성공적으로 업데이트되었습니다"))
                 .addOnFailureListener(e -> Log.e(TAG, "Ok Button 상태 업데이트 중 오류 발생", e));
+    }
+
+
+
+    private void showMenuPopup(View anchorView) {
+        View popupView = LayoutInflater.from(this).inflate(R.layout.menu, null);
+        int width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true;
+        PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        // 팝업 내 TextView 요소에 대한 참조 가져오기
+        TextView nicknameTextView = popupView.findViewById(R.id.nickname);
+        TextView reliabilityPointTextView = popupView.findViewById(R.id.reliability_point);
+        TextView logoutTextView = popupView.findViewById(R.id.menu_signout);
+        TextView myChattingList = popupView.findViewById(R.id.my_chatting);
+
+        // Firestore에서 사용자 데이터를 가져와 TextView에 값 설정
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            DocumentReference userDocRef = db.collection("users").document(userId);
+
+            userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // 사용자 데이터 가져오기 및 TextView에 값 설정
+                            String nicknames = document.getString("nickname");
+                            Long reliabilityPoint = document.getLong("reliability_point");
+
+                            if (nicknames != null) {
+                                nicknameTextView.setText(nicknames);
+                            }
+
+                            if (reliabilityPoint != null) {
+                                reliabilityPointTextView.setText(String.valueOf(reliabilityPoint) + "점");
+                            }
+                        } else {
+                            Log.d(ConstraintLayoutStates.TAG, "문서가 존재하지 않습니다.");
+                        }
+                    } else {
+                        Log.d(ConstraintLayoutStates.TAG, "데이터 가져오기 실패: ", task.getException());
+                    }
+                }
+            });
+        }
+
+        myChattingList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goChattingList();
+            }
+        });
+
+        // logoutTextView에 대한 onClickListener 설정
+        logoutTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 로그아웃 액션 처리
+                showSignoutDialog();
+                // 필요에 따라 추가적인 로그아웃 로직을 추가할 수 있습니다.
+                // 예를 들어, 사용자를 로그인 페이지로 리디렉션할 수 있습니다.
+            }
+        });
+
+        // 팝업 창 표시
+        popupWindow.showAtLocation(popupView, Gravity.TOP | Gravity.END, 30, 100);
+    }
+
+    private void showSignoutDialog(){
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.signout_dialog, null); // null 자리는 거의 null로만 씀
+
+        customDialog = new AlertDialog.Builder( ChatActivity.this, R.style.RoundedCornersDialog_signout)
+                .setView(dialogView)
+                .create();
+
+        customDialog.show();
+
+        ImageView back = customDialog.findViewById(R.id.sign_out_back);
+        Button signOutButton = customDialog.findViewById(R.id.sign_out_button);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.dismiss();
+            }
+        });
+
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { // db에 store 정보를 삭제해야함
+                signOut();
+            }
+        });
+    }
+
+    private void goChattingList() {
+        Intent intent = new Intent(this, ChattingListActivity.class);
+        startActivity(intent);
+    }
+
+    private void signOut() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }
