@@ -357,23 +357,43 @@ public class PleaseList extends AppCompatActivity {
 
 
     private void createChatRoom(String opponentUid, String opponentNickname, double keeperLat, double keeperLon) {
+        Map<String, Object> roomData = new HashMap<>();
         String currentUserUid = mAuth.getCurrentUser().getUid();
+        if(currentUserUid !=null) {
+            db.collection("users").document(currentUserUid).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                String userNickname = document.getString("nickname");
+                                roomData.put("myName", userNickname);
+                            } else {
+                                // Firestore 문서가 없거나 null인 경우
+                                Log.d(TAG, "문서 존재하지 않음");
+                            }
+                        } else {
+                            // 작업이 예외와 함께 실패한 경우
+                            Exception exception = task.getException();
+                            if (exception != null) {
+                                Log.e(TAG, "문서 가져오기 오류", exception);
+                            }
+                        }
+                    });
+        }
 
 
-        DocumentReference userDocRef = db.collection("storeContent").document(currentUserUid);
+        DocumentReference userDocRef = db.collection("storeContent").document(opponentUid);
         userDocRef.get().addOnCompleteListener(uidtask -> {
             if (uidtask.isSuccessful()) {
                 DocumentSnapshot document = uidtask.getResult();
                 if (document.exists()) {
-                    // Access the "nickname" field value
-                    String nickname = document.getString("nickname");
+                    double keeperLats= document.getDouble("lat");
+                    double keeperLons= document.getDouble("lon");
                     boolean isOkButtonPressed = false;
                     boolean return_complete = false;
 
-
                     // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
                     String[] userIds = {currentUserUid, opponentUid};
-
                     Arrays.sort(userIds);
 
                     String chatRoomId = userIds[0] + "_" + userIds[1]; // Unique chat room ID
@@ -388,24 +408,24 @@ public class PleaseList extends AppCompatActivity {
                                     if (documentSnapshot.exists()) {
                                         // Chat room already exists between these users
                                         goToChatRoom(chatRoomId, opponentNickname);
-                                        finish();
+                                        //finish();
                                     } else {
                                         // Create a new chat room if it doesn't exist
                                         Calendar calendar = Calendar.getInstance();
                                         String time = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
 
-                                        Map<String, Object> roomData = new HashMap<>();
+
                                         roomData.put("roomId", chatRoomId);
 
                                         roomData.put("opponentName", opponentNickname);
-                                        roomData.put("myName", nickname);
+
 
                                         roomData.put("time", time);
                                         roomData.put("createdBy", currentUserUid);
                                         roomData.put("createdFor", opponentUid);
                                         roomData.put("timestamp", FieldValue.serverTimestamp());
-                                        roomData.put("keeperLat", keeperLat);
-                                        roomData.put("keeperLon", keeperLon);
+                                        roomData.put("keeperLat", keeperLats);
+                                        roomData.put("keeperLon", keeperLons);
 
                                         roomData.put("isOkButtonPressed_PleaseSide", isOkButtonPressed);
                                         roomData.put("isOkButtonPressed_StoreSide", isOkButtonPressed);
@@ -421,7 +441,7 @@ public class PleaseList extends AppCompatActivity {
 
                                                     // Redirect to the chat room with the created room ID
                                                     goToChatRoom(chatRoomId, opponentNickname);
-                                                    finish();
+                                                    //finish();
                                                 })
                                                 .addOnFailureListener(e -> {
                                                     // Failed to create chat room
@@ -435,9 +455,9 @@ public class PleaseList extends AppCompatActivity {
                                 }
                             });
 
-                    if (nickname != null) {
+                    if (opponentNickname != null) {
                         // Use the retrieved nickname
-                        Log.d(TAG, "Nickname: " + nickname);
+                        Log.d(TAG, "Nickname: " + opponentNickname);
                     } else {
                         // Handle null value if needed
                         Log.d(TAG, "Nickname is null");
@@ -449,7 +469,6 @@ public class PleaseList extends AppCompatActivity {
                 Log.d(TAG, "get failed with ", uidtask.getException());
             }
         });
-
 
 //        // Sort the UIDs alphabetically to ensure consistency in generating the chat room ID
 //        String[] userIds = {currentUserUid, opponentUid};
