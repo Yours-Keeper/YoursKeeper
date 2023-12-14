@@ -2,6 +2,7 @@ package com.example.yourskeeper;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -314,6 +315,10 @@ public class ChattingListActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
         intent.putExtra("OTHERS_NAME", name);
+        SharedPreferences preferences = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("key_name", "chat");
+        editor.apply();
         startActivity(intent);
     }
 

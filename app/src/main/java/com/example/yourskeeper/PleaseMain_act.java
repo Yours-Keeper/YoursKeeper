@@ -12,6 +12,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -334,7 +335,7 @@ public class PleaseMain_act extends AppCompatActivity
                 String buttonText = chatBtn.getText().toString();
                 if (buttonText.equals("내 채팅 목록으로 가기")) {
                     goChattingList();
-                    finish();
+                    //finish();
                 } else {
                     // If the text is not "Go to my chat list", perform the createChatRoom method
                     createChatRoom(storeUid, nickname);
@@ -415,6 +416,10 @@ public class PleaseMain_act extends AppCompatActivity
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
         intent.putExtra("OTHERS_NAME", name);
+        SharedPreferences preferences = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("key_name", "mark");
+        editor.apply();
         startActivity(intent);
     }
 
@@ -545,7 +550,7 @@ public class PleaseMain_act extends AppCompatActivity
                                     if (documentSnapshot.exists()) {
                                         // Chat room already exists between these users
                                         goToChatRoom(chatRoomId, opponentNickname);
-                                        finish();
+                                        //finish();
                                     } else {
                                         // Create a new chat room if it doesn't exist
                                         Calendar calendar = Calendar.getInstance();
@@ -578,7 +583,7 @@ public class PleaseMain_act extends AppCompatActivity
 
                                                     // Redirect to the chat room with the created room ID
                                                     goToChatRoom(chatRoomId, opponentNickname);
-                                                    finish();
+                                                    //finish();
                                                 })
                                                 .addOnFailureListener(e -> {
                                                     // Failed to create chat room
