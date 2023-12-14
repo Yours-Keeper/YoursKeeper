@@ -6,6 +6,7 @@ import static android.content.ContentValues.TAG;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -176,7 +177,7 @@ public class PleaseList extends AppCompatActivity {
                 String buttonText = chatBtn.getText().toString();
                 if (buttonText.equals("내 채팅 목록으로 가기")) {
                     goChattingList();
-                    finish();
+                    //finish();
                 } else {
                     // If the text is not "Go to my chat list", perform the createChatRoom method
                     createChatRoom(uid, chat, lat, lon);
@@ -567,6 +568,10 @@ public class PleaseList extends AppCompatActivity {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("ROOM_ID", roomId); // Pass the room ID to the chat room activity
         intent.putExtra("OTHERS_NAME", name);
+        SharedPreferences preferences = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("key_name", "pleaseList");
+        editor.apply();
         startActivity(intent);
     }
 

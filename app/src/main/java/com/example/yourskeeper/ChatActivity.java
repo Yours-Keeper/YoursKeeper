@@ -10,20 +10,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -84,6 +89,14 @@ public class ChatActivity extends AppCompatActivity {
         ImageButton sendButton = findViewById(R.id.send_Btn);
         ImageButton checkBtn = findViewById(R.id.ckeck_Btn);
         ImageButton plusBtn = findViewById(R.id.plus_Btn);
+        RecyclerView rootLayout = findViewById(R.id.recycler_view);
+        rootLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard();
+                return false;
+            }
+        });
 
         setTitle("Using FirestoreRecyclerAdapter");
 
@@ -204,6 +217,8 @@ public class ChatActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                goBack();
                 finish();
             }
         });
@@ -1121,5 +1136,47 @@ public class ChatActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+    private void goBack() {
+        SharedPreferences preferences = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        String chat = preferences.getString("key_name", "");
+        // SharedPreferences에 데이터 저장
+
+        if(chat =="chat"){
+            Intent intent = new Intent(this, ChattingListActivity.class);
+            startActivity(intent);
+        }else if(chat == "pleaseList"){
+            Intent intent = new Intent(this, PleaseList.class);
+            startActivity(intent);
+        }else{
+            Intent intent = new Intent(this, PleaseMain_act.class);
+            startActivity(intent);
+        }
+    }
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        SharedPreferences preferences = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        String chat = preferences.getString("key_name", "");
+        // SharedPreferences에 데이터 저장
+
+        if(chat =="chat"){
+            Intent intent = new Intent(this, ChattingListActivity.class);
+            startActivity(intent);
+        }else if(chat == "pleaseList"){
+            Intent intent = new Intent(this, PleaseList.class);
+            startActivity(intent);
+        }else{
+            Intent intent = new Intent(this, PleaseMain_act.class);
+            startActivity(intent);
+        }
+        // 현재 액티비티 종료
+        super.onBackPressed();
     }
 }

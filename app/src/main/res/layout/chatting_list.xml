@@ -15,7 +15,6 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
             android:layout_marginHorizontal="20dp"
-            android:text="도라에몽1"
             android:textSize="35dp"
             android:textStyle="bold" />
         <TextView
